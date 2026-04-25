@@ -1,4 +1,3 @@
-# vite-env.d.ts — TypeScript types for custom env variables
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
