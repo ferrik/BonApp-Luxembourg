@@ -1,8 +1,9 @@
 import type { Restaurant, TrackingPayload, TrackingResponse } from '../types'
 
-// In dev: Vite proxies /api → http://localhost:4000
-// In production: VITE_API_URL must point to Render backend (e.g. https://bonapp-backend.onrender.com)
-const BASE_URL = (import.meta.env.VITE_API_URL ?? '') + '/api'
+// In dev: Vite proxies /api to http://localhost:4000
+// In production: VITE_API_URL must point to Render backend
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const BASE_URL = ((import.meta as any).env?.VITE_API_URL ?? '') + '/api'
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
