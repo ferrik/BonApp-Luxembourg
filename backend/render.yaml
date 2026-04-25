@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: bonapp-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        # Use the Internal Database URL from Render dashboard (no SSL needed within Render)
+        fromDatabase:
+          name: bonapp_db
+          property: connectionString
+      - key: CORS_ORIGIN
+        # Set this to your Vercel frontend URL after first deploy
+        value: https://bonapp-luxembourg.vercel.app
