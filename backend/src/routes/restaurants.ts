@@ -10,6 +10,7 @@ const ALLOWED_CUISINES = ['Italian', 'Asian', 'Burger', 'Kebab', 'Local', 'Healt
 router.get('/', async (req: Request, res: Response) => {
   try {
     const cuisine = req.query.cuisine as string | undefined
+    const city = req.query.city as string | undefined
     const requestedLimit = Number(req.query.limit) || 3
     const isAdmin = req.query.admin === 'true'
     // Allow up to 200 (admin uses limit=100); default user flow is capped at 3
@@ -28,6 +29,11 @@ router.get('/', async (req: Request, res: Response) => {
     if (cuisine && ALLOWED_CUISINES.includes(cuisine)) {
       query += ` AND cuisine_primary = $${idx++}`
       values.push(cuisine)
+    }
+
+    if (city) {
+      query += ` AND city ILIKE $${idx++}`
+      values.push(`%${city}%`)
     }
 
     query += ` ORDER BY RANDOM() LIMIT $${idx}`

@@ -15,10 +15,12 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 export async function fetchRestaurants(params?: {
   cuisine?: string
+  city?: string
   limit?: number
 }): Promise<Restaurant[]> {
   const url = new URL(BASE_URL + '/restaurants', window.location.origin)
   if (params?.cuisine) url.searchParams.set('cuisine', params.cuisine)
+  if (params?.city) url.searchParams.set('city', params.city)
   if (params?.limit) url.searchParams.set('limit', String(params.limit))
   const res = await fetch(url.toString())
   return handleResponse<Restaurant[]>(res)

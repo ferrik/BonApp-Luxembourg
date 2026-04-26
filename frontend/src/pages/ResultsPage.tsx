@@ -12,16 +12,17 @@ export default function ResultsPage() {
   const { lang } = useLang()
 
   const cuisine = searchParams.get('cuisine') ?? ''
+  const city = searchParams.get('city') ?? ''
   const isSurprise = searchParams.get('surprise') === '1'
 
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  function loadPicks(cat: string) {
+  function loadPicks(cat: string, cityParam: string) {
     setLoading(true)
     setError(null)
-    fetchRestaurants({ cuisine: cat, limit: 3 })
+    fetchRestaurants({ cuisine: cat, city: cityParam || undefined, limit: 3 })
       .then((data) => setRestaurants(data.slice(0, 3)))
       .catch(() => setError(t('error.loading', lang)))
       .finally(() => setLoading(false))
@@ -32,12 +33,12 @@ export default function ResultsPage() {
       navigate('/')
       return
     }
-    loadPicks(cuisine)
-  }, [cuisine, lang, navigate])
+    loadPicks(cuisine, city)
+  }, [cuisine, city, lang, navigate])
 
   function handleChangePicks() {
     // Re-fetch the same category (shuffle happens server-side or randomly)
-    loadPicks(cuisine)
+    loadPicks(cuisine, city)
   }
 
   // Emoji for category pill

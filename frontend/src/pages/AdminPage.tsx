@@ -35,7 +35,7 @@ type PartnerApplication = PartnerApplicationPayload & {
 }
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<'restaurants' | 'applications'>('restaurants')
+  const [activeTab, setActiveTab] = useState<'restaurants' | 'applications' | 'analytics'>('restaurants')
 
   // Restaurants state
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
@@ -55,11 +55,30 @@ export default function AdminPage() {
   const [appSaveStatus, setAppSaveStatus] = useState<SaveStatus>({})
   const [adminToken, setAdminToken] = useState(() => localStorage.getItem('bonapp_admin_token') || '')
 
+  // Analytics state
+  const [analytics, setAnalytics] = useState<any>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+
   useEffect(() => {
     localStorage.setItem('bonapp_admin_token', adminToken)
     if (activeTab === 'restaurants') fetchRestaurants()
     if (activeTab === 'applications') fetchApplications()
+    if (activeTab === 'analytics') fetchAnalytics()
   }, [activeTab, adminToken])
+
+  async function fetchAnalytics() {
+    setAnalyticsLoading(true)
+    try {
+      const res = await fetch(`${BASE_URL}/tracking/summary`)
+      if (!res.ok) throw new Error('Failed to fetch analytics')
+      const data = await res.json()
+      setAnalytics(data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setAnalyticsLoading(false)
+    }
+  }
 
   async function fetchRestaurants() {
     setLoading(true)
@@ -215,7 +234,11 @@ export default function AdminPage() {
           <p className="text-xs text-zinc-500 mt-1">BonApp Luxembourg — Management</p>
         </div>
         <button
-          onClick={() => activeTab === 'restaurants' ? fetchRestaurants() : fetchApplications()}
+          onClick={() => {
+            if (activeTab === 'restaurants') fetchRestaurants()
+            if (activeTab === 'applications') fetchApplications()
+            if (activeTab === 'analytics') fetchAnalytics()
+          }}
           className="btn-secondary text-xs px-4 py-2"
         >
           ↻ Refresh
@@ -244,9 +267,66 @@ export default function AdminPage() {
         >
           Partner Applications
         </button>
+        <button
+          onClick={() => setActiveTab('analytics')}
+          className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
+            activeTab === 'analytics'
+              ? 'bg-brand-500 text-white'
+              : 'bg-zinc-900 text-zinc-400 hover:text-white'
+          }`}
+        >
+          Analytics
+        </button>
       </div>
 
-      {activeTab === 'restaurants' ? (
+      {activeTab === 'analytics' && (
+        <div className="space-y-6">
+          {analyticsLoading ? (
+            <div className="h-32 bg-zinc-900 rounded-xl animate-pulse" />
+          ) : analytics ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 text-center">
+                  <p className="text-3xl font-extrabold text-white">{analytics.total_clicks}</p>
+                  <p className="text-sm text-zinc-500 mt-1">Total CTA Clicks</p>
+                </div>
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                  <h3 className="text-sm font-bold text-white mb-3">By Event Type</h3>
+                  <div className="space-y-2">
+                    {analytics.by_event_type?.map((t: any) => (
+                      <div key={t.event_type} className="flex justify-between text-sm">
+                        <span className="text-zinc-400">{t.event_type}</span>
+                        <span className="font-bold text-white">{t.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <h3 className="text-sm font-bold text-white mb-4">Recent Clicks (Last 20)</h3>
+                <div className="space-y-3">
+                  {analytics.recent?.map((r: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between border-b border-zinc-800 pb-2 last:border-0 last:pb-0">
+                      <div>
+                        <p className="text-sm font-bold text-white">{r.name}</p>
+                        <p className="text-xs text-zinc-500">{r.city} · {r.event_type}</p>
+                      </div>
+                      <span className="text-xs text-zinc-500">
+                        {new Date(r.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="text-zinc-500 text-sm">Could not load analytics.</p>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'restaurants' && (
         <>
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3 mb-6">
@@ -400,7 +480,9 @@ export default function AdminPage() {
             </div>
           )}
         </>
-      ) : (
+      )}
+
+      {activeTab === 'applications' && (
         <>
           {/* Applications View */}
           <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 flex gap-3 items-center">

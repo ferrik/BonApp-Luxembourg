@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useLang } from '../context/LangContext'
 import { t } from '../lib/i18n'
@@ -20,17 +21,36 @@ const HOW_IT_WORKS = [
   { step: '3', key: 'howItWorks.step3', icon: '🛵' },
 ]
 
+const LUX_CITIES = [
+  'Luxembourg City',
+  'Esch-sur-Alzette',
+  'Differdange',
+  'Dudelange',
+  'Pétange',
+  'Schifflange',
+  'Strassen',
+  'Bettembourg'
+]
+
 export default function HomePage() {
   const navigate = useNavigate()
   const { lang } = useLang()
+  const [city, setCity] = useState('')
 
   function handleCategory(cuisine: string) {
-    navigate(`/results?cuisine=${encodeURIComponent(cuisine)}`)
+    const url = new URLSearchParams()
+    url.set('cuisine', cuisine)
+    if (city) url.set('city', city)
+    navigate(`/results?${url.toString()}`)
   }
 
   function handlePickForMe() {
     const pick = ALL_CATS[Math.floor(Math.random() * ALL_CATS.length)]
-    navigate(`/results?cuisine=${encodeURIComponent(pick)}&surprise=1`)
+    const url = new URLSearchParams()
+    url.set('cuisine', pick)
+    url.set('surprise', '1')
+    if (city) url.set('city', city)
+    navigate(`/results?${url.toString()}`)
   }
 
   return (
@@ -58,6 +78,20 @@ export default function HomePage() {
 
       {/* ── MAIN CTA + CATEGORIES ── */}
       <section className="max-w-lg w-full mx-auto px-4 pb-8">
+
+        {/* Location Selector */}
+        <div className="mb-5">
+          <select
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
+          >
+            <option value="">Anywhere in Luxembourg</option>
+            {LUX_CITIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
 
         {/* PRIMARY: Pick for me */}
         <button
