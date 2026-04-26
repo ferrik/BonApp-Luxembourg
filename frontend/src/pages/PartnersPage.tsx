@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../context/LangContext'
 import { submitPartnerApplication } from '../lib/api'
@@ -15,7 +15,7 @@ const LABELS = {
     pageSubtitle: 'Free pilot. No commissions. Direct customer orders.',
     tabJoin: 'Add my restaurant',
     tabUpdate: 'Update existing listing',
-    updateNotice: 'Is your restaurant already listed on BonApp? Request a correction and we'll verify it with you.',
+    updateNotice: "Is your restaurant already listed on BonApp? Request a correction and we'll verify it with you.",
     sectionRestaurant: 'Restaurant info',
     sectionContact: 'Your contact details',
     sectionOnline: 'Online presence',
@@ -37,11 +37,11 @@ const LABELS = {
     minOrder: 'Minimum order (€)',
     deliveryFee: 'Delivery fee (€)',
     estDelivery: 'Est. delivery time (minutes)',
-    notes: 'Anything else you'd like us to know',
+    notes: "Anything else you'd like us to know",
     submit: 'Submit restaurant',
     submitting: 'Sending…',
     successTitle: 'Thank you! 🎉',
-    successMsg: 'We'll review your restaurant and contact you before publishing. This usually takes 1–2 business days.',
+    successMsg: "We'll review your restaurant and contact you before publishing. This usually takes 1-2 business days.",
     successBack: 'Back to home',
     required: 'Please fill in all required fields.',
     errorGeneric: 'Something went wrong. Please try again or email us at hello@bonapp.lu',
