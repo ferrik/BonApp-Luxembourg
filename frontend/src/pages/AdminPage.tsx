@@ -23,6 +23,9 @@ interface SaveStatus {
   [id: number]: 'idle' | 'saving' | 'saved' | 'error'
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const BASE_URL = ((import.meta as any).env?.VITE_API_URL ?? '') + '/api'
+
 // Combine Payload with DB fields
 type PartnerApplication = PartnerApplicationPayload & {
   id: number
@@ -61,7 +64,7 @@ export default function AdminPage() {
   async function fetchRestaurants() {
     setLoading(true)
     try {
-      const res = await fetch('/api/restaurants?limit=100')
+      const res = await fetch(`${BASE_URL}/restaurants?limit=100`)
       if (!res.ok) throw new Error('Failed to fetch')
       const data: Restaurant[] = await res.json()
       setRestaurants(data)
@@ -86,7 +89,7 @@ export default function AdminPage() {
     setAppLoading(true)
     setAppError(null)
     try {
-      const res = await fetch('/api/partners', {
+      const res = await fetch(`${BASE_URL}/partners`, {
         headers: { 'X-Admin-Token': adminToken }
       })
       if (!res.ok) {
@@ -114,7 +117,7 @@ export default function AdminPage() {
     setSaveStatus((s) => ({ ...s, [id]: 'saving' }))
     try {
       const body = edits[id]
-      const res = await fetch(`/api/restaurants/${id}`, {
+      const res = await fetch(`${BASE_URL}/restaurants/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -137,7 +140,7 @@ export default function AdminPage() {
     setAppSaveStatus((s) => ({ ...s, [id]: 'saving' }))
     try {
       const body = appEdits[id]
-      const res = await fetch(`/api/partners/${id}`, {
+      const res = await fetch(`${BASE_URL}/partners/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
