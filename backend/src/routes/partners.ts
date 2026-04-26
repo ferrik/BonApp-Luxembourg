@@ -131,4 +131,53 @@ router.get('/', async (req: Request, res: Response) => {
   }
 })
 
+// ── PATCH /api/partners/:id  (admin only) ────────────────────────────────────
+router.patch('/:id', async (req: Request, res: Response) => {
+  const ADMIN_TOKEN = process.env.ADMIN_TOKEN
+  const auth = req.headers['x-admin-token']
+
+  if (!ADMIN_TOKEN || auth !== ADMIN_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
+  const id = Number(req.params.id)
+  if (isNaN(id)) return res.status(400).json({ error: 'Invalid id' })
+
+  const { status, admin_notes } = req.body
+  const VALID_STATUSES = ['pending', 'active', 'rejected']
+
+  if (status && !VALID_STATUSES.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' })
+  }
+
+  const updates: string[] = []
+  const values: unknown[] = []
+  let idx = 1
+
+  if (status)      { updates.push(`status = $${idx++}`);      values.push(status) }
+  if (admin_notes !== undefined) { updates.push(`admin_notes = $${idx++}`); values.push(admin_notes) }
+
+  if (updates.length === 0) {
+    return res.status(400).json({ error: 'Nothing to update' })
+  }
+
+  updates.push(`updated_at = NOW()`)
+  values.push(id)
+
+  try {
+    const result = await pool.query(
+      `UPDATE partner_applications SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`,
+      values
+    )
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Application not found' })
+    }
+    console.log(`[partners] Application #${id} updated: status=${status ?? 'unchanged'}`)
+    return res.json(result.rows[0])
+  } catch (err) {
+    console.error('[partners] PATCH error:', err)
+    return res.status(500).json({ error: 'Failed to update application' })
+  }
+})
+
 export default router
