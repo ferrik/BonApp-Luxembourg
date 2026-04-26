@@ -5,6 +5,7 @@ import { testConnection } from './db/pool'
 import healthRouter from './routes/health'
 import restaurantsRouter from './routes/restaurants'
 import trackingRouter from './routes/tracking'
+import partnersRouter from './routes/partners'
 
 dotenv.config()
 
@@ -26,6 +27,7 @@ app.use((req, _res, next) => {
 app.use('/api/health', healthRouter)
 app.use('/api/restaurants', restaurantsRouter)
 app.use('/api/tracking', trackingRouter)
+app.use('/api/partners', partnersRouter)
 
 // 404 fallback
 app.use((_req, res) => {

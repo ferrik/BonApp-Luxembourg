@@ -1,4 +1,4 @@
-import type { Restaurant, TrackingPayload, TrackingResponse } from '../types'
+import type { Restaurant, TrackingPayload, TrackingResponse, PartnerApplicationPayload, PartnerApplicationResponse } from '../types'
 
 // In dev: Vite proxies /api to http://localhost:4000
 // In production: VITE_API_URL must point to Render backend
@@ -36,4 +36,15 @@ export async function trackClick(payload: TrackingPayload): Promise<TrackingResp
     body: JSON.stringify(payload),
   })
   return handleResponse<TrackingResponse>(res)
+}
+
+export async function submitPartnerApplication(
+  payload: PartnerApplicationPayload
+): Promise<PartnerApplicationResponse> {
+  const res = await fetch(`${BASE_URL}/partners/apply`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  return handleResponse<PartnerApplicationResponse>(res)
 }

@@ -10,6 +10,7 @@ import TermsPage from './pages/legal/TermsPage'
 import PrivacyPage from './pages/legal/PrivacyPage'
 import LegalNoticePage from './pages/legal/LegalNoticePage'
 import PartnerTermsPage from './pages/legal/PartnerTermsPage'
+import PartnersPage from './pages/PartnersPage'
 
 function NotFound() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/results" element={<ResultsPage />} />
           <Route path="/restaurants/:id" element={<RestaurantPage />} />
+          <Route path="/partners" element={<PartnersPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/legal/terms" element={<TermsPage />} />
           <Route path="/legal/privacy" element={<PrivacyPage />} />

@@ -51,3 +51,39 @@ export type CuisineCategory =
   | 'Indian'
   | 'Other'
   | 'Surprise'
+
+// Partner application — submitted via /partners page
+export interface PartnerApplicationPayload {
+  application_type: 'join' | 'update'
+  existing_restaurant_id?: number | null
+
+  restaurant_name: string
+  cuisine_type?: string
+  city?: string
+  address?: string
+
+  contact_name: string
+  contact_phone?: string
+  contact_email: string
+
+  website_url?: string
+  ordering_url?: string
+  menu_url?: string
+
+  offers_delivery: boolean
+  offers_pickup: boolean
+
+  delivery_areas?: string
+  min_order_eur?: number | null
+  delivery_fee_eur?: number | null
+  est_delivery_min?: number | null
+
+  notes?: string
+}
+
+export interface PartnerApplicationResponse {
+  ok: boolean
+  id: number
+  status: 'pending'
+  message: string
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import { fetchRestaurantById, trackClick } from '../lib/api'
 import type { Restaurant } from '../types'
 import { useLang } from '../context/LangContext'
@@ -219,6 +219,19 @@ export default function RestaurantPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Own this restaurant? */}
+      <div className="mt-4 text-center">
+        <p className="text-xs text-zinc-600">
+          Own this restaurant?{' '}
+          <Link
+            to={`/partners?type=update&name=${encodeURIComponent(r.name)}&id=${r.id}`}
+            className="text-brand-400 hover:underline"
+          >
+            Update information
+          </Link>
+        </p>
       </div>
     </main>
   )

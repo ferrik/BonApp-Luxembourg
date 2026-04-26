@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useLang } from '../context/LangContext'
 import { t } from '../lib/i18n'
 
@@ -121,13 +121,13 @@ export default function HomePage() {
             <p className="text-xs text-zinc-400 mb-3 leading-relaxed">
               {t('forRestaurants.body', lang)}
             </p>
-            <a
+            <Link
               id="cta-join-pilot"
-              href="mailto:hello@bonapp.lu?subject=Join BonApp pilot"
+              to="/partners"
               className="text-xs font-semibold text-brand-400 hover:text-brand-300 transition-colors"
             >
               {t('forRestaurants.cta', lang)}
-            </a>
+            </Link>
           </div>
         </div>
       </section>
