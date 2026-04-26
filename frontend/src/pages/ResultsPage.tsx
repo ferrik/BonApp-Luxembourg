@@ -18,54 +18,71 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  function loadPicks(cat: string) {
+    setLoading(true)
+    setError(null)
+    fetchRestaurants({ cuisine: cat, limit: 3 })
+      .then((data) => setRestaurants(data.slice(0, 3)))
+      .catch(() => setError(t('error.loading', lang)))
+      .finally(() => setLoading(false))
+  }
+
   useEffect(() => {
     if (!cuisine) {
       navigate('/')
       return
     }
-    setLoading(true)
-    setError(null)
-    fetchRestaurants({ cuisine, limit: 3 })
-      .then((data) => setRestaurants(data.slice(0, 3)))
-      .catch(() => setError(t('error.loading', lang)))
-      .finally(() => setLoading(false))
+    loadPicks(cuisine)
   }, [cuisine, lang, navigate])
 
-  const categoryLabel = cuisine ? `🍽️ ${cuisine}` : ''
+  function handleChangePicks() {
+    // Re-fetch the same category (shuffle happens server-side or randomly)
+    loadPicks(cuisine)
+  }
+
+  // Emoji for category pill
+  const catEmojis: Record<string, string> = {
+    Italian: '🍕', Burger: '🍔', Kebab: '🥙', Asian: '🍣',
+    Indian: '🍛', Local: '🥘', Healthy: '🥗', Other: '🍽️',
+  }
+  const catEmoji = catEmojis[cuisine] ?? '🍽️'
 
   return (
     <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
-      {/* Back + title */}
-      <div className="mb-6">
-        <button
-          id="back-btn"
-          onClick={() => navigate(-1)}
-          className="text-sm text-zinc-400 hover:text-white transition-colors mb-3 inline-flex items-center gap-1"
-        >
-          {t('results.back', lang)}
-        </button>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-extrabold text-white">
-            {t('results.title', lang)}
-          </h1>
-          {categoryLabel && (
-            <span className="badge badge-orange">{categoryLabel}</span>
-          )}
-          {isSurprise && (
-            <span className="badge badge-zinc">🎲 Surprise</span>
-          )}
+
+      {/* Back */}
+      <button
+        id="back-btn"
+        onClick={() => navigate(-1)}
+        className="text-sm text-zinc-400 hover:text-white transition-colors mb-5 inline-flex items-center gap-1"
+      >
+        {t('results.back', lang)}
+      </button>
+
+      {/* Title block */}
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-extrabold text-white mb-1">
+          {t('results.title', lang)}
+        </h1>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <span className="badge badge-orange">{catEmoji} {cuisine}</span>
+          {isSurprise && <span className="badge badge-zinc">🎲 Surprise</span>}
         </div>
+        <p className="text-xs text-zinc-500">
+          {t('results.subtitle', lang)}
+        </p>
       </div>
 
-      {/* States */}
+      {/* Loading skeletons */}
       {loading && (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card p-5 animate-pulse">
-              <div className="h-2 w-full bg-zinc-800 rounded mb-4" />
+              <div className="h-1.5 w-full bg-zinc-800 rounded mb-4" />
               <div className="h-4 w-1/3 bg-zinc-800 rounded mb-3" />
-              <div className="h-5 w-2/3 bg-zinc-800 rounded mb-4" />
-              <div className="h-3 w-1/2 bg-zinc-800 rounded" />
+              <div className="h-5 w-2/3 bg-zinc-800 rounded mb-2" />
+              <div className="h-3 w-1/2 bg-zinc-800 rounded mb-4" />
+              <div className="h-3 w-2/3 bg-zinc-800 rounded" />
             </div>
           ))}
         </div>
@@ -81,12 +98,32 @@ export default function ResultsPage() {
         </div>
       )}
 
+      {/* Cards with rank */}
       {!loading && !error && restaurants.length > 0 && (
-        <div className="space-y-4">
-          {restaurants.map((r) => (
-            <RestaurantCard key={r.id} restaurant={r} />
-          ))}
-        </div>
+        <>
+          <div className="space-y-4 mb-5">
+            {restaurants.map((r, i) => (
+              <RestaurantCard key={r.id} restaurant={r} rank={i + 1} />
+            ))}
+          </div>
+
+          {/* Change my picks */}
+          <button
+            id="btn-change-picks"
+            onClick={handleChangePicks}
+            className="w-full btn-secondary py-3 text-sm rounded-2xl mb-6"
+          >
+            {t('results.changePicks', lang)}
+          </button>
+
+          {/* No-ads disclaimer */}
+          <div className="flex items-start gap-3 bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+            <span className="text-lg shrink-0">💡</span>
+            <p className="text-xs text-zinc-500 leading-relaxed">
+              {t('results.noAds', lang)}
+            </p>
+          </div>
+        </>
       )}
     </main>
   )

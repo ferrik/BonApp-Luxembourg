@@ -64,10 +64,18 @@ export default function RestaurantPage() {
     )
   }
 
+  const r = restaurant
+
   const badges: string[] = []
-  if (restaurant.own_delivery)    badges.push(t('restaurant.delivery', lang))
-  if (restaurant.pickup)          badges.push(t('restaurant.pickup', lang))
-  if (restaurant.direct_ordering) badges.push(t('restaurant.ordering', lang))
+  if (r.own_delivery)    badges.push(t('restaurant.delivery', lang))
+  if (r.pickup)          badges.push(t('restaurant.pickup', lang))
+  if (r.direct_ordering) badges.push(t('restaurant.ordering', lang))
+
+  // ── Smart CTA logic ──
+  // Priority: online order URL → call to order (phone) → website
+  const hasOnlineOrder = Boolean(r.delivery_url)
+  const hasPhone       = Boolean(r.phone)
+  const hasWebsite     = Boolean(r.website_url)
 
   return (
     <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
@@ -87,21 +95,23 @@ export default function RestaurantPage() {
           {/* Cuisine + city */}
           <div className="flex items-center justify-between mb-4">
             <span className="badge badge-orange">
-              {restaurant.cuisine_primary ?? 'Other'}
+              {r.cuisine_primary ?? 'Other'}
             </span>
-            {restaurant.city && (
-              <span className="text-sm text-zinc-500">{restaurant.city}</span>
+            {r.city && (
+              <span className="text-sm text-zinc-500 flex items-center gap-1">
+                📍 {r.city}
+              </span>
             )}
           </div>
 
           {/* Name */}
           <h1 className="text-2xl font-extrabold text-white mb-2 leading-tight">
-            {restaurant.name}
+            {r.name}
           </h1>
 
           {/* Address */}
-          {restaurant.address && (
-            <p className="text-sm text-zinc-500 mb-4">{restaurant.address}</p>
+          {r.address && (
+            <p className="text-sm text-zinc-500 mb-4">{r.address}</p>
           )}
 
           {/* Service badges */}
@@ -115,64 +125,99 @@ export default function RestaurantPage() {
 
           {/* Info grid */}
           <div className="grid grid-cols-2 gap-3 mb-8 text-sm">
-            {restaurant.min_order_eur != null && (
+            {r.min_order_eur != null && (
               <div className="bg-zinc-800 rounded-xl p-3">
                 <p className="text-xs text-zinc-500 mb-1">{t('restaurant.minOrder', lang)}</p>
-                <p className="font-bold text-white">€{restaurant.min_order_eur}</p>
+                <p className="font-bold text-white">€{r.min_order_eur}</p>
               </div>
             )}
-            {restaurant.delivery_fee_eur != null && (
+            {r.delivery_fee_eur != null && (
               <div className="bg-zinc-800 rounded-xl p-3">
                 <p className="text-xs text-zinc-500 mb-1">{t('restaurant.deliveryFee', lang)}</p>
-                <p className="font-bold text-white">€{restaurant.delivery_fee_eur}</p>
+                <p className="font-bold text-white">€{r.delivery_fee_eur}</p>
               </div>
             )}
-            {restaurant.delivery_zone_notes && (
+            {r.delivery_zone_notes && (
               <div className="bg-zinc-800 rounded-xl p-3 col-span-2">
-                <p className="text-xs text-zinc-500">{restaurant.delivery_zone_notes}</p>
+                <p className="text-xs text-zinc-500">{r.delivery_zone_notes}</p>
               </div>
             )}
           </div>
 
-          {/* CTA Buttons */}
+          {/* ── SMART CTA BUTTONS ── */}
           <div className="space-y-3">
-            {(restaurant.delivery_url || restaurant.direct_ordering) && (
+
+            {/* Case 1: has online order URL */}
+            {hasOnlineOrder && (
               <button
-                id={`cta-order-${restaurant.id}`}
-                onClick={() => handleCta('order_click', restaurant.delivery_url)}
+                id={`cta-order-${r.id}`}
+                onClick={() => handleCta('order_click', r.delivery_url)}
                 className="btn-primary w-full py-4 text-base"
               >
                 {t('restaurant.order', lang)}
               </button>
             )}
 
-            {restaurant.phone && (
+            {/* Case 2: no online order, but has phone → "Call to order" as primary */}
+            {!hasOnlineOrder && hasPhone && (
               <a
-                id={`cta-call-${restaurant.id}`}
-                href={`tel:${restaurant.phone}`}
+                id={`cta-call-primary-${r.id}`}
+                href={`tel:${r.phone}`}
                 onClick={() => handleCta('call_click', null)}
-                className="btn-secondary w-full py-4 text-base text-center"
+                className="btn-primary w-full py-4 text-base text-center block"
               >
-                {t('restaurant.call', lang)} · {restaurant.phone}
+                {t('restaurant.callToOrder', lang)} · {r.phone}
               </a>
             )}
 
-            {restaurant.website_url && (
+            {/* Case 3: no online order, no phone, website only → website as primary */}
+            {!hasOnlineOrder && !hasPhone && hasWebsite && (
               <button
-                id={`cta-website-${restaurant.id}`}
-                onClick={() => handleCta('website_click', restaurant.website_url)}
+                id={`cta-website-primary-${r.id}`}
+                onClick={() => handleCta('website_click', r.website_url)}
+                className="btn-primary w-full py-4 text-base"
+              >
+                {t('restaurant.website', lang)}
+              </button>
+            )}
+
+            {/* Secondary: call (shown when online order exists) */}
+            {hasOnlineOrder && hasPhone && (
+              <a
+                id={`cta-call-${r.id}`}
+                href={`tel:${r.phone}`}
+                onClick={() => handleCta('call_click', null)}
+                className="btn-secondary w-full py-4 text-base text-center block"
+              >
+                {t('restaurant.call', lang)} · {r.phone}
+              </a>
+            )}
+
+            {/* Secondary: website */}
+            {hasWebsite && (hasOnlineOrder || hasPhone) && (
+              <button
+                id={`cta-website-${r.id}`}
+                onClick={() => handleCta('website_click', r.website_url)}
                 className="btn-secondary w-full py-3 text-sm"
               >
                 {t('restaurant.website', lang)}
               </button>
             )}
+
+            {/* No contacts at all */}
+            {!hasOnlineOrder && !hasPhone && !hasWebsite && (
+              <p className="text-center text-zinc-500 text-sm py-4">
+                {t('restaurant.notAvailable', lang)}
+              </p>
+            )}
           </div>
 
-          {!restaurant.delivery_url && !restaurant.phone && !restaurant.website_url && (
-            <p className="text-center text-zinc-500 text-sm py-4">
-              {t('restaurant.notAvailable', lang)}
+          {/* Legal note */}
+          <div className="mt-6 border border-brand-500/20 bg-brand-500/5 rounded-xl px-4 py-3">
+            <p className="text-xs text-brand-400/80 leading-relaxed whitespace-pre-line text-center">
+              {t('restaurant.legalNote', lang)}
             </p>
-          )}
+          </div>
         </div>
       </div>
     </main>
