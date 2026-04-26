@@ -64,7 +64,7 @@ export default function AdminPage() {
   async function fetchRestaurants() {
     setLoading(true)
     try {
-      const res = await fetch(`${BASE_URL}/restaurants?limit=100`)
+      const res = await fetch(`${BASE_URL}/restaurants?limit=100&admin=true`)
       if (!res.ok) throw new Error('Failed to fetch')
       const data: Restaurant[] = await res.json()
       setRestaurants(data)
@@ -315,19 +315,22 @@ export default function AdminPage() {
                   <div key={r.id} className={`bg-zinc-900 border rounded-xl p-4 transition-all ${dirty ? 'border-brand-500/50' : 'border-zinc-800'}`}>
                     <div className="flex items-start justify-between gap-4 mb-3">
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-white text-sm">{r.name}</span>
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className="font-bold text-white text-lg">{r.name}</span>
                           <span className="badge badge-orange text-[10px]">{r.cuisine_primary}</span>
                         </div>
+                        <p className="text-sm text-zinc-400">
+                          {r.phone || 'No phone'} · <span className="text-zinc-500">ID #{r.id}</span>
+                        </p>
                         <p className="text-xs text-zinc-500 mt-0.5">
-                          {[r.city, r.address].filter(Boolean).join(' · ')} · ID #{r.id}
+                          {[r.city, r.address].filter(Boolean).join(' · ')}
                         </p>
                       </div>
 
                       <button
                         onClick={() => handleSaveRestaurant(r.id)}
                         disabled={!dirty || status === 'saving'}
-                        className={`shrink-0 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        className={`shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                           status === 'saved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                           : status === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/30'
                           : dirty ? 'bg-brand-500 text-white hover:bg-brand-400'
@@ -336,6 +339,27 @@ export default function AdminPage() {
                       >
                         {status === 'saving' ? '...' : status === 'saved' ? '✓ Saved' : status === 'error' ? '✗ Error' : 'Save'}
                       </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-zinc-950 p-3 rounded-lg text-xs">
+                      <div>
+                        <span className="block text-zinc-500 mb-0.5">Website</span>
+                        {r.website_url ? <a href={r.website_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
+                      </div>
+                      <div>
+                        <span className="block text-zinc-500 mb-0.5">Delivery / Menu</span>
+                        {r.delivery_url ? <a href={r.delivery_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
+                      </div>
+                      <div>
+                        <span className="block text-zinc-500 mb-0.5">Fees & Min</span>
+                        <span className="text-zinc-300">Min: €{r.min_order_eur ?? '-'} / Fee: €{r.delivery_fee_eur ?? '-'}</span>
+                      </div>
+                      <div>
+                        <span className="block text-zinc-500 mb-0.5">Delivery Config</span>
+                        <span className="text-zinc-300">
+                          {[r.own_delivery ? 'Own' : null, r.pickup ? 'Pickup' : null].filter(Boolean).join(', ') || 'None'}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

@@ -11,12 +11,19 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const cuisine = req.query.cuisine as string | undefined
     const requestedLimit = Number(req.query.limit) || 3
+    const isAdmin = req.query.admin === 'true'
     // Allow up to 200 (admin uses limit=100); default user flow is capped at 3
     const limit = Math.min(requestedLimit, 200)
 
     let query = 'SELECT * FROM restaurants WHERE 1=1'
     const values: (string | number)[] = []
     let idx = 1
+
+    if (!isAdmin) {
+      // Regular users shouldn't see paused or rejected restaurants
+      query += ` AND partner_status NOT IN ('paused', 'rejected')`
+      // Also might want to hide unverified ones in the future, but for MVP keep it simple
+    }
 
     if (cuisine && ALLOWED_CUISINES.includes(cuisine)) {
       query += ` AND cuisine_primary = $${idx++}`
