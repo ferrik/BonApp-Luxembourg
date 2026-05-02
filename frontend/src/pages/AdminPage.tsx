@@ -83,7 +83,7 @@ export default function AdminPage() {
   async function fetchRestaurants() {
     setLoading(true)
     try {
-      const res = await fetch(`${BASE_URL}/restaurants?limit=100&admin=true`)
+      const res = await fetch(`${BASE_URL}/restaurants?limit=500&admin=true`)
       if (!res.ok) throw new Error('Failed to fetch')
       const data: Restaurant[] = await res.json()
       setRestaurants(data)
@@ -476,15 +476,15 @@ export default function AdminPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-zinc-950 p-3 rounded-lg text-xs">
                       <div>
                         <span className="block text-zinc-500 mb-0.5">Сайт</span>
-                        {r.website_url ? <a href={r.website_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
+                        {r.website_url ? <a href={r.website_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">Доставка / Меню</span>
-                        {r.delivery_url ? <a href={r.delivery_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
+                        {r.delivery_url ? <a href={r.delivery_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">Комісія та мін. замовлення</span>
-                        <span className="text-zinc-300">Min: €{r.min_order_eur ?? '-'} / Fee: €{r.delivery_fee_eur ?? '-'}</span>
+                        <span className="text-zinc-300">Мін: €{r.min_order_eur ?? '-'} / Комісія: €{r.delivery_fee_eur ?? '-'}</span>
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">Конфігурація доставки</span>
@@ -540,7 +540,7 @@ export default function AdminPage() {
           <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 flex gap-3 items-center">
             <input
               type="password"
-              placeholder="Admin Token"
+              placeholder="Токен адміністратора"
               value={adminToken}
               onChange={(e) => setAdminToken(e.target.value)}
               className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-brand-500 max-w-sm w-full"
@@ -549,7 +549,7 @@ export default function AdminPage() {
           </div>
 
           {!adminToken ? (
-            <p className="text-zinc-500 text-sm text-center py-12">Введіть Admin Token для перегляду заявок.</p>
+            <p className="text-zinc-500 text-sm text-center py-12">Введіть Токен адміністратора для перегляду заявок.</p>
           ) : appLoading ? (
             <div className="space-y-3">
               {[1,2].map((i) => <div key={i} className="h-32 bg-zinc-900 rounded-xl animate-pulse" />)}
@@ -627,11 +627,11 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">URL меню</span>
-                        {app.menu_url ? <a href={app.menu_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
+                        {app.menu_url ? <a href={app.menu_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">URL замовлення</span>
-                        {app.ordering_url ? <a href={app.ordering_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
+                        {app.ordering_url ? <a href={app.ordering_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">Доставка?</span>
@@ -640,7 +640,7 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">Комісія та мін. замовлення</span>
-                        <span className="text-zinc-300">Min: €{app.min_order_eur ?? '-'} / Fee: €{app.delivery_fee_eur ?? '-'}</span>
+                        <span className="text-zinc-300">Мін: €{app.min_order_eur ?? '-'} / Комісія: €{app.delivery_fee_eur ?? '-'}</span>
                       </div>
                       <div className="col-span-2">
                         <span className="block text-zinc-500 mb-0.5">Примітки від ресторану</span>

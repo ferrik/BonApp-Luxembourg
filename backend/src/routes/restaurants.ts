@@ -53,8 +53,15 @@ router.get('/', async (req: Request, res: Response) => {
       values.push(`%${city}%`)
     }
 
-    query += ` ORDER BY RANDOM() LIMIT $${idx}`
-    values.push(limit)
+    if (isAdmin) {
+      // Admins see newest first
+      query += ` ORDER BY id DESC LIMIT $${idx}`
+      values.push(limit)
+    } else {
+      // Users see random selections
+      query += ` ORDER BY RANDOM() LIMIT $${idx}`
+      values.push(limit)
+    }
 
     const result = await pool.query(query, values)
     res.json(result.rows)
