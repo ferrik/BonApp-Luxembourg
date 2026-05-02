@@ -1,7 +1,9 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import { testConnection } from './db/pool'
+import fs from 'fs'
+import path from 'path'
+import { pool, testConnection } from './db/pool'
 import healthRouter from './routes/health'
 import restaurantsRouter from './routes/restaurants'
 import trackingRouter from './routes/tracking'
@@ -47,10 +49,23 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' })
 })
 
+// Run schema migrations (idempotent — all CREATE TABLE IF NOT EXISTS)
+async function runMigrations(): Promise<void> {
+  const schemaPath = path.join(__dirname, 'db', 'schema.starter.sql')
+  if (!fs.existsSync(schemaPath)) {
+    console.warn('[migrate] schema.starter.sql not found, skipping auto-migrate')
+    return
+  }
+  const sql = fs.readFileSync(schemaPath, 'utf8')
+  await pool.query(sql)
+  console.log('[migrate] Schema applied successfully')
+}
+
 // Start
 async function start() {
   try {
     await testConnection()
+    await runMigrations()
     app.listen(PORT, () => {
       console.log(`[server] BonApp backend running on http://localhost:${PORT}`)
     })
@@ -61,3 +76,4 @@ async function start() {
 }
 
 start()
+

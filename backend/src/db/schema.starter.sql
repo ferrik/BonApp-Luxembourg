@@ -95,3 +95,51 @@ CREATE INDEX IF NOT EXISTS idx_restaurant_clicks_created_at ON restaurant_clicks
 
 CREATE INDEX IF NOT EXISTS idx_restaurant_usage_daily_restaurant_id ON restaurant_usage_daily(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_restaurant_usage_daily_usage_date ON restaurant_usage_daily(usage_date);
+
+-- ── partner_applications ──────────────────────────────────────────────────────
+-- Stores restaurant partner join / update requests.
+-- status must be manually changed to 'active'; nothing auto-publishes.
+
+CREATE TABLE IF NOT EXISTS partner_applications (
+  id                    SERIAL PRIMARY KEY,
+
+  application_type      TEXT NOT NULL DEFAULT 'join',
+  existing_restaurant_id INT REFERENCES restaurants(id) ON DELETE SET NULL,
+
+  restaurant_name       TEXT NOT NULL,
+  cuisine_type          TEXT,
+  city                  TEXT,
+  address               TEXT,
+
+  contact_name          TEXT NOT NULL,
+  contact_phone         TEXT,
+  contact_email         TEXT NOT NULL,
+
+  website_url           TEXT,
+  ordering_url          TEXT,
+  menu_url              TEXT,
+
+  offers_delivery       BOOLEAN NOT NULL DEFAULT FALSE,
+  offers_pickup         BOOLEAN NOT NULL DEFAULT FALSE,
+
+  delivery_areas        TEXT,
+  min_order_eur         NUMERIC(6,2),
+  delivery_fee_eur      NUMERIC(6,2),
+  est_delivery_min      INT,
+
+  notes                 TEXT,
+
+  status                TEXT NOT NULL DEFAULT 'pending'
+                          CHECK (status IN ('pending', 'active', 'rejected')),
+  admin_notes           TEXT,
+
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_partner_applications_status
+  ON partner_applications (status);
+
+CREATE INDEX IF NOT EXISTS idx_partner_applications_created
+  ON partner_applications (created_at DESC);
+
