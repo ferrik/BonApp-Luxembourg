@@ -155,6 +155,44 @@ export default function AdminPage() {
     }
   }
 
+  async function handlePromoteApplication(app: PartnerApplication) {
+    if (!window.confirm(`Додати "${app.restaurant_name}" в публічний список ресторанів?`)) return
+    try {
+      // 1. Create restaurant record
+      const res = await fetch(`${BASE_URL}/restaurants`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: app.restaurant_name,
+          city: app.city ?? null,
+          address: app.address ?? null,
+          phone: app.contact_phone ?? null,
+          website_url: app.website_url ?? null,
+          delivery_url: app.ordering_url ?? null,
+          cuisine_primary: app.cuisine_type ?? 'Other',
+          own_delivery: app.offers_delivery ?? false,
+          pickup: app.offers_pickup ?? false,
+          direct_ordering: !!(app.ordering_url),
+          source_name: 'partner_application',
+          verification_status: 'verified',
+          partner_status: 'active',
+          notes: app.notes ?? null,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to create restaurant')
+      // 2. Mark application as active
+      await fetch(`${BASE_URL}/partners/${app.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Token': adminToken },
+        body: JSON.stringify({ status: 'active', admin_notes: 'Promoted to restaurant' }),
+      })
+      setApplications((prev) => prev.map((a) => a.id === app.id ? { ...a, status: 'active' } : a))
+      alert(`✅ "${app.restaurant_name}" додано на сайт!`)
+    } catch {
+      alert('Помилка при додаванні ресторану')
+    }
+  }
+
   async function handleDeleteApplication(id: number, name: string) {
     if (!window.confirm(`Видалити заявку "${name}"? Цю дію не можна скасувати.`)) return
     try {
@@ -546,7 +584,16 @@ export default function AdminPage() {
                         </p>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
+                        {app.status !== 'active' && (
+                          <button
+                            onClick={() => handlePromoteApplication(app)}
+                            className="shrink-0 px-3 py-2 rounded-lg text-sm font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
+                            title="Додати в ресторани"
+                          >
+                            ➕ На сайт
+                          </button>
+                        )}
                         <button
                           onClick={() => handleSaveApplication(app.id)}
                           disabled={!dirty || status === 'saving'}
