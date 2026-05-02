@@ -8,6 +8,39 @@ const VERIFICATION_OPTIONS = ['pending', 'verified', 'inferred', 'unverified', '
 const PARTNER_OPTIONS = ['new', 'contacted', 'interested', 'follow_up', 'trial', 'active', 'premium', 'paused', 'onboarded', 'rejected']
 const APPLICATION_STATUSES = ['pending', 'active', 'rejected']
 
+const VERIFICATION_LABELS: Record<string, string> = {
+  pending: 'pending (очікує)',
+  verified: 'verified (перевірено)',
+  inferred: 'inferred (передбачено)',
+  unverified: 'unverified (не перевірено)',
+  needs_verification: 'needs_verification (потребує перевірки)'
+}
+
+const PARTNER_LABELS: Record<string, string> = {
+  new: 'new (новий)',
+  contacted: 'contacted (зв\'язалися)',
+  interested: 'interested (зацікавлений)',
+  follow_up: 'follow_up (на контролі)',
+  trial: 'trial (тестовий)',
+  active: 'active (активний)',
+  premium: 'premium (преміум)',
+  paused: 'paused (на паузі)',
+  onboarded: 'onboarded (підключений)',
+  rejected: 'rejected (відхилено)'
+}
+
+const CUISINE_LABELS: Record<string, string> = {
+  Italian: 'Italian (Італійська)',
+  Asian: 'Asian (Азійська)',
+  Burger: 'Burger (Бургери)',
+  Kebab: 'Kebab (Кебаб)',
+  Local: 'Local (Місцева)',
+  Healthy: 'Healthy (Здорова)',
+  Indian: 'Indian (Індійська)',
+  Other: 'Other (Інше)'
+}
+
+
 interface EditState {
   verification_status: string
   partner_status: string
@@ -415,7 +448,9 @@ export default function AdminPage() {
               className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
             >
               <option value="">Всі кухні</option>
-              {cuisines.map((c) => <option key={c} value={c!}>{c}</option>)}
+              {['Italian', 'Asian', 'Burger', 'Kebab', 'Local', 'Healthy', 'Indian', 'Other'].map((c) => (
+                <option key={c} value={c}>{CUISINE_LABELS[c] || c}</option>
+              ))}
             </select>
             <select
               value={filterStatus}
@@ -540,7 +575,7 @@ export default function AdminPage() {
                         >
                           <option value="">Інше</option>
                           {['Italian', 'Asian', 'Burger', 'Kebab', 'Local', 'Healthy', 'Indian', 'Other'].map((c) => (
-                            <option key={c} value={c}>{c}</option>
+                            <option key={c} value={c}>{CUISINE_LABELS[c] || c}</option>
                           ))}
                         </select>
                       </div>
@@ -554,7 +589,7 @@ export default function AdminPage() {
                           onChange={(ev) => updateEdit(r.id, 'verification_status', ev.target.value)}
                           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
                         >
-                          {VERIFICATION_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                          {VERIFICATION_OPTIONS.map((o) => <option key={o} value={o}>{VERIFICATION_LABELS[o] || o}</option>)}
                         </select>
                       </div>
                       <div>
@@ -564,7 +599,7 @@ export default function AdminPage() {
                           onChange={(ev) => updateEdit(r.id, 'partner_status', ev.target.value)}
                           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
                         >
-                          {PARTNER_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                          {PARTNER_OPTIONS.map((o) => <option key={o} value={o}>{PARTNER_LABELS[o] || o}</option>)}
                         </select>
                       </div>
                       <div>
