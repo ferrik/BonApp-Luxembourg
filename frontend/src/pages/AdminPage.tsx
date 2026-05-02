@@ -155,6 +155,20 @@ export default function AdminPage() {
     }
   }
 
+  async function handleDeleteApplication(id: number, name: string) {
+    if (!window.confirm(`Видалити заявку "${name}"? Цю дію не можна скасувати.`)) return
+    try {
+      const res = await fetch(`${BASE_URL}/partners/${id}`, {
+        method: 'DELETE',
+        headers: { 'X-Admin-Token': adminToken },
+      })
+      if (!res.ok) throw new Error('Failed to delete')
+      setApplications((prev) => prev.filter((a) => a.id !== id))
+    } catch {
+      alert('Помилка видалення')
+    }
+  }
+
   async function handleSaveApplication(id: number) {
     setAppSaveStatus((s) => ({ ...s, [id]: 'saving' }))
     try {
@@ -230,8 +244,8 @@ export default function AdminPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-white">Admin</h1>
-          <p className="text-xs text-zinc-500 mt-1">BonApp Luxembourg — Management</p>
+          <h1 className="text-2xl font-extrabold text-white">Адмін панель</h1>
+          <p className="text-xs text-zinc-500 mt-1">BonApp Luxembourg — Управління</p>
         </div>
         <button
           onClick={() => {
@@ -255,7 +269,7 @@ export default function AdminPage() {
               : 'bg-zinc-900 text-zinc-400 hover:text-white'
           }`}
         >
-          Restaurants
+          🍽 Ресторани
         </button>
         <button
           onClick={() => setActiveTab('applications')}
@@ -265,7 +279,7 @@ export default function AdminPage() {
               : 'bg-zinc-900 text-zinc-400 hover:text-white'
           }`}
         >
-          Partner Applications
+          📋 Заявки
         </button>
         <button
           onClick={() => setActiveTab('analytics')}
@@ -275,7 +289,7 @@ export default function AdminPage() {
               : 'bg-zinc-900 text-zinc-400 hover:text-white'
           }`}
         >
-          Analytics
+          📊 Аналітика
         </button>
       </div>
 
@@ -488,16 +502,16 @@ export default function AdminPage() {
           <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 flex gap-3 items-center">
             <input
               type="password"
-              placeholder="Admin Token (X-Admin-Token)"
+              placeholder="Admin Token"
               value={adminToken}
               onChange={(e) => setAdminToken(e.target.value)}
               className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-brand-500 max-w-sm w-full"
             />
-            <span className="text-xs text-zinc-500">Required to view and edit applications</span>
+            <span className="text-xs text-zinc-500">Потрібен для перегляду та редагування заявок</span>
           </div>
 
           {!adminToken ? (
-            <p className="text-zinc-500 text-sm text-center py-12">Enter Admin Token to view applications.</p>
+            <p className="text-zinc-500 text-sm text-center py-12">Введіть Admin Token для перегляду заявок.</p>
           ) : appLoading ? (
             <div className="space-y-3">
               {[1,2].map((i) => <div key={i} className="h-32 bg-zinc-900 rounded-xl animate-pulse" />)}
@@ -505,7 +519,7 @@ export default function AdminPage() {
           ) : appError ? (
             <p className="text-red-400 text-sm text-center py-12">{appError}</p>
           ) : applications.length === 0 ? (
-            <p className="text-zinc-500 text-sm text-center py-12">No applications found.</p>
+            <p className="text-zinc-500 text-sm text-center py-12">Заявок не знайдено.</p>
           ) : (
             <div className="space-y-4">
               {applications.map((app) => {
@@ -532,18 +546,27 @@ export default function AdminPage() {
                         </p>
                       </div>
 
-                      <button
-                        onClick={() => handleSaveApplication(app.id)}
-                        disabled={!dirty || status === 'saving'}
-                        className={`shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                          status === 'saved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : status === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                          : dirty ? 'bg-brand-500 text-white hover:bg-brand-400'
-                          : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-                        }`}
-                      >
-                        {status === 'saving' ? '...' : status === 'saved' ? '✓ Saved' : status === 'error' ? '✗ Error' : 'Save'}
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSaveApplication(app.id)}
+                          disabled={!dirty || status === 'saving'}
+                          className={`shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                            status === 'saved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                            : status === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                            : dirty ? 'bg-brand-500 text-white hover:bg-brand-400'
+                            : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+                          }`}
+                        >
+                          {status === 'saving' ? '...' : status === 'saved' ? '✓ Збережено' : status === 'error' ? '✗ Помилка' : 'Зберегти'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteApplication(app.id, app.restaurant_name)}
+                          className="shrink-0 px-3 py-2 rounded-lg text-sm font-bold bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 transition-all"
+                          title="Видалити заявку"
+                        >
+                          🗑
+                        </button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-zinc-950 p-3 rounded-lg text-xs">
@@ -580,22 +603,24 @@ export default function AdminPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Application Status</label>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Статус заявки</label>
                         <select
                           value={e?.status ?? app.status}
                           onChange={(ev) => updateAppEdit(app.id, 'status', ev.target.value)}
                           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
                         >
-                          {APPLICATION_STATUSES.map((o) => <option key={o} value={o}>{o}</option>)}
+                          <option value="pending">⏳ Очікує</option>
+                          <option value="active">✅ Активна</option>
+                          <option value="rejected">❌ Відхилена</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Admin Notes</label>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Примітка адміна</label>
                         <input
                           type="text"
                           value={e?.admin_notes ?? ''}
                           onChange={(ev) => updateAppEdit(app.id, 'admin_notes', ev.target.value)}
-                          placeholder="Private note for us..."
+                          placeholder="Внутрішня примітка..."
                           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-brand-500"
                         />
                       </div>
