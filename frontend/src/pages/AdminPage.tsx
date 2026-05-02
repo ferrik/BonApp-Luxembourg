@@ -296,7 +296,7 @@ export default function AdminPage() {
       !search ||
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       (r.city ?? '').toLowerCase().includes(search.toLowerCase())
-    const matchCuisine = !filterCuisine || r.cuisine_primary === filterCuisine
+    const matchCuisine = !filterCuisine || (r.cuisine_primary ?? '').includes(filterCuisine)
     const matchStatus = !filterStatus || r.verification_status === filterStatus
     return matchSearch && matchCuisine && matchStatus
   })
@@ -529,7 +529,7 @@ export default function AdminPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                       <div>
                         <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Назва</label>
                         <input
@@ -566,18 +566,29 @@ export default function AdminPage() {
                           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
                         />
                       </div>
-                      <div>
-                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Кухня</label>
-                        <select
-                          value={e?.cuisine_primary ?? r.cuisine_primary ?? ''}
-                          onChange={(ev) => updateEdit(r.id, 'cuisine_primary', ev.target.value)}
-                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
-                        >
-                          <option value="">Інше</option>
-                          {['Italian', 'Asian', 'Burger', 'Kebab', 'Local', 'Healthy', 'Indian', 'Other'].map((c) => (
-                            <option key={c} value={c}>{CUISINE_LABELS[c] || c}</option>
-                          ))}
-                        </select>
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Кухня (можна кілька)</label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {['Italian', 'Asian', 'Burger', 'Kebab', 'Local', 'Healthy', 'Indian', 'Other'].map((c) => {
+                          const currentVal = e?.cuisine_primary ?? r.cuisine_primary ?? ''
+                          const isSelected = currentVal.includes(c)
+                          return (
+                            <button
+                              key={c}
+                              onClick={() => {
+                                let arr = currentVal.split(',').map(s => s.trim()).filter(Boolean)
+                                if (isSelected) arr = arr.filter(x => x !== c)
+                                else arr.push(c)
+                                updateEdit(r.id, 'cuisine_primary', arr.join(', '))
+                              }}
+                              className={`px-2.5 py-1 text-xs rounded-md border transition-colors ${isSelected ? 'bg-brand-500/20 border-brand-500 text-brand-400' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-300'}`}
+                            >
+                              {CUISINE_LABELS[c] || c}
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
 
