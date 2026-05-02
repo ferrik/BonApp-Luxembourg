@@ -585,15 +585,13 @@ export default function AdminPage() {
                       </div>
 
                       <div className="flex gap-2 flex-wrap">
-                        {app.status !== 'active' && (
-                          <button
-                            onClick={() => handlePromoteApplication(app)}
-                            className="shrink-0 px-3 py-2 rounded-lg text-sm font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
-                            title="Додати в ресторани"
-                          >
-                            ➕ На сайт
-                          </button>
-                        )}
+                        <button
+                          onClick={() => handlePromoteApplication(app)}
+                          className="shrink-0 px-3 py-2 rounded-lg text-sm font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
+                          title="Створити ресторан у базі даних"
+                        >
+                          ➕ На сайт
+                        </button>
                         <button
                           onClick={() => handleSaveApplication(app.id)}
                           disabled={!dirty || status === 'saving'}
