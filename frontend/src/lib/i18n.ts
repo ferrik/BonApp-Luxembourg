@@ -121,10 +121,10 @@ const strings: Record<string, Record<Lang, string>> = {
   'restaurant.bestFor':     { en: 'Best for:', fr: 'Idéal pour :' },
   'restaurant.viewDetail':  { en: 'See order options', fr: 'Voir les options' },
   // Smart CTA labels
-  'restaurant.order':       { en: '🛵 Order directly', fr: '🛵 Commander directement' },
-  'restaurant.callToOrder': { en: '📞 Call to order', fr: '📞 Appeler pour commander' },
+  'restaurant.order':       { en: '🛒 Order online', fr: '🛒 Commander en ligne' },
+  'restaurant.callToOrder': { en: '📞 Order by phone', fr: '📞 Commander par téléphone' },
   'restaurant.call':        { en: '📞 Call', fr: '📞 Appeler' },
-  'restaurant.website':     { en: '🌐 Visit website', fr: '🌐 Visiter le site' },
+  'restaurant.website':     { en: '📋 View menu', fr: '📋 Voir le menu' },
   'restaurant.minOrder':    { en: 'Min. order', fr: 'Commande min.' },
   'restaurant.deliveryFee': { en: 'Delivery fee', fr: 'Frais de livraison' },
   'restaurant.notAvailable': { en: 'Contact for details', fr: 'Contacter pour les détails' },
@@ -132,6 +132,13 @@ const strings: Record<string, Record<Lang, string>> = {
     en: 'BonApp does not deliver food.\nYou order directly from the restaurant.',
     fr: "BonApp ne livre pas de nourriture.\nVous commandez directement auprès du restaurant.",
   },
+  
+  // Perks & Hook
+  'restaurant.hook': { en: '🔥 Order direct — no fees', fr: '🔥 Commande directe — sans frais' },
+  'restaurant.perkPickupOnly': { en: 'Pickup only', fr: 'À emporter uniquement' },
+  'restaurant.perkDelivery': { en: 'Delivery & Pickup', fr: 'Livraison & À emporter' },
+  'restaurant.perkReady': { en: 'Ready in minutes', fr: 'Prêt en quelques minutes' },
+  'restaurant.perkPay': { en: 'Pay at restaurant', fr: 'Paiement au restaurant' },
 
   // Footer
   'footer.terms':    { en: 'Terms of Service', fr: "Conditions d'utilisation" },

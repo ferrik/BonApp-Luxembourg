@@ -64,6 +64,9 @@ interface EditState {
   verification_status: string
   partner_status: string
   notes: string
+  website_url: string
+  delivery_url: string
+  direct_ordering: boolean
 }
 
 interface AppEditState {
@@ -150,6 +153,9 @@ export default function AdminPage() {
           verification_status: r.verification_status,
           partner_status: r.partner_status,
           notes: r.notes ?? '',
+          website_url: r.website_url ?? '',
+          delivery_url: r.delivery_url ?? '',
+          direct_ordering: r.direct_ordering ?? false,
         }
       })
       setEdits(initEdits)
@@ -205,6 +211,9 @@ export default function AdminPage() {
           verification_status: body.verification_status,
           partner_status: body.partner_status,
           notes: body.notes || null,
+          website_url: body.website_url || null,
+          delivery_url: body.delivery_url || null,
+          direct_ordering: body.direct_ordering,
         }),
       })
       if (!res.ok) throw new Error('Failed to save')
@@ -294,7 +303,7 @@ export default function AdminPage() {
     }
   }
 
-  function updateEdit(id: number, field: keyof EditState, value: string) {
+  function updateEdit(id: number, field: keyof EditState, value: string | boolean) {
     setEdits((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }))
   }
 
@@ -311,6 +320,9 @@ export default function AdminPage() {
       e.address !== (r.address ?? '') ||
       e.phone !== (r.phone ?? '') ||
       e.cuisine_primary !== (r.cuisine_primary ?? '') ||
+      e.website_url !== (r.website_url ?? '') ||
+      e.delivery_url !== (r.delivery_url ?? '') ||
+      e.direct_ordering !== (r.direct_ordering ?? false) ||
       e.verification_status !== r.verification_status ||
       e.partner_status !== r.partner_status ||
       e.notes !== (r.notes ?? '')
@@ -546,12 +558,33 @@ export default function AdminPage() {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-zinc-950 p-3 rounded-lg text-xs">
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Сайт</span>
-                        {r.website_url ? <a href={r.website_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
+                        <span className="block text-zinc-500 mb-0.5">Сайт (URL)</span>
+                        <input
+                          type="text"
+                          value={e?.website_url ?? r.website_url ?? ''}
+                          onChange={(ev) => updateEdit(r.id, 'website_url', ev.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-500"
+                        />
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Доставка / Меню</span>
-                        {r.delivery_url ? <a href={r.delivery_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
+                        <span className="block text-zinc-500 mb-0.5">Доставка / Меню (URL)</span>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={e?.delivery_url ?? r.delivery_url ?? ''}
+                            onChange={(ev) => updateEdit(r.id, 'delivery_url', ev.target.value)}
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-500"
+                          />
+                          <label className="flex items-center gap-1 shrink-0 text-xs text-brand-400 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={e?.direct_ordering ?? r.direct_ordering ?? false}
+                              onChange={(ev) => updateEdit(r.id, 'direct_ordering', ev.target.checked)}
+                              className="accent-brand-500"
+                            />
+                            Онлайн замовлення
+                          </label>
+                        </div>
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">Комісія та мін. замовлення</span>

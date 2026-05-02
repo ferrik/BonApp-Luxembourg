@@ -117,10 +117,21 @@ export default function RestaurantPage() {
           <h1 className="text-2xl font-extrabold text-white mb-2 leading-tight">
             {r.name}
           </h1>
+          
+          <p className="text-brand-400 font-bold mb-4 text-sm">
+            {t('restaurant.hook', lang)}
+          </p>
 
           {/* Address */}
           {r.address && (
             <p className="text-sm text-zinc-500 mb-4">{r.address}</p>
+          )}
+
+          {/* Description / Notes */}
+          {r.notes && (
+            <p className="text-sm text-zinc-300 mb-6 leading-relaxed whitespace-pre-line">
+              {r.notes}
+            </p>
           )}
 
           {/* Service badges */}
@@ -219,6 +230,22 @@ export default function RestaurantPage() {
                 {t('restaurant.notAvailable', lang)}
               </p>
             )}
+          </div>
+
+          {/* ── STRONG PERKS BLOCK ── */}
+          <div className="mt-6 flex flex-col gap-2.5 text-sm text-zinc-300 border border-zinc-800 rounded-xl p-5 bg-zinc-900/50">
+            <div className="flex items-center gap-3">
+              <span className="text-emerald-400 bg-emerald-400/10 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">✓</span> 
+              {r.own_delivery ? t('restaurant.perkDelivery', lang) : t('restaurant.perkPickupOnly', lang)}
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-emerald-400 bg-emerald-400/10 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">✓</span> 
+              {t('restaurant.perkReady', lang)}
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-emerald-400 bg-emerald-400/10 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">✓</span> 
+              {t('restaurant.perkPay', lang)}
+            </div>
           </div>
 
           {/* Legal note */}
