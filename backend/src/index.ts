@@ -11,10 +11,23 @@ dotenv.config()
 
 const app = express()
 const PORT = Number(process.env.PORT) || 4000
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173'
+
+// Support comma-separated list of allowed origins (e.g. "https://bonapp.lu,https://bon-app-luxembourg.vercel.app")
+const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:5173'
+const CORS_ORIGINS = rawOrigins.split(',').map(o => o.trim()).filter(Boolean)
+console.log('[server] Allowed CORS origins:', CORS_ORIGINS)
 
 // Middleware
-app.use(cors({ origin: CORS_ORIGIN, credentials: false }))
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. Render health checks, curl)
+    if (!origin) return callback(null, true)
+    if (CORS_ORIGINS.includes(origin)) return callback(null, true)
+    console.warn(`[cors] Blocked request from origin: ${origin}`)
+    return callback(new Error(`CORS: origin ${origin} not allowed`))
+  },
+  credentials: false,
+}))
 app.use(express.json())
 
 // Request logger
