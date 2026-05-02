@@ -494,6 +494,58 @@ export default function AdminPage() {
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                      <div>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Назва</label>
+                        <input
+                          type="text"
+                          value={e?.name ?? r.name}
+                          onChange={(ev) => updateEdit(r.id, 'name', ev.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Місто</label>
+                        <input
+                          type="text"
+                          value={e?.city ?? r.city ?? ''}
+                          onChange={(ev) => updateEdit(r.id, 'city', ev.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Адреса</label>
+                        <input
+                          type="text"
+                          value={e?.address ?? r.address ?? ''}
+                          onChange={(ev) => updateEdit(r.id, 'address', ev.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Телефон</label>
+                        <input
+                          type="text"
+                          value={e?.phone ?? r.phone ?? ''}
+                          onChange={(ev) => updateEdit(r.id, 'phone', ev.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Кухня</label>
+                        <select
+                          value={e?.cuisine_primary ?? r.cuisine_primary ?? ''}
+                          onChange={(ev) => updateEdit(r.id, 'cuisine_primary', ev.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                        >
+                          <option value="">Інше</option>
+                          {['Italian', 'Asian', 'Burger', 'Kebab', 'Local', 'Healthy', 'Indian', 'Other'].map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
                         <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Статус верифікації</label>

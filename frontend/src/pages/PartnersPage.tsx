@@ -116,7 +116,7 @@ export default function PartnersPage() {
 
   // Form state
   const [restaurantName, setRestaurantName] = useState('')
-  const [cuisineType, setCuisineType]       = useState('')
+  const [cuisineType, setCuisineType]       = useState<string[]>([])
   const [city, setCity]                     = useState('')
   const [address, setAddress]               = useState('')
   const [contactName, setContactName]       = useState('')
@@ -145,7 +145,7 @@ export default function PartnersPage() {
     const payload: PartnerApplicationPayload = {
       application_type: appType,
       restaurant_name: restaurantName.trim(),
-      cuisine_type:    cuisineType || undefined,
+      cuisine_type:    cuisineType.length > 0 ? cuisineType.join(', ') : undefined,
       city:            city || undefined,
       address:         address || undefined,
       contact_name:    contactName.trim(),
@@ -247,21 +247,26 @@ export default function PartnersPage() {
           />
         </Field>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field label={L.cuisineType}>
-            <select
-              id="field-cuisine-type"
-              value={cuisineType}
-              onChange={(e) => setCuisineType(e.target.value)}
-              className={inputCls}
-            >
-              <option value="">—</option>
-              {CUISINE_OPTIONS.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </Field>
+        <Field label={L.cuisineType}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-1">
+            {CUISINE_OPTIONS.map((c) => (
+              <label key={c} className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-3 py-2 hover:bg-zinc-800 transition-colors">
+                <input
+                  type="checkbox"
+                  className={checkboxCls}
+                  checked={cuisineType.includes(c)}
+                  onChange={(e) => {
+                    if (e.target.checked) setCuisineType([...cuisineType, c])
+                    else setCuisineType(cuisineType.filter((x) => x !== c))
+                  }}
+                />
+                {c}
+              </label>
+            ))}
+          </div>
+        </Field>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label={L.city}>
             <input
               id="field-city"

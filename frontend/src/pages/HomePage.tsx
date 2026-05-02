@@ -26,7 +26,7 @@ const HOW_IT_WORKS = [
 export default function HomePage() {
   const navigate = useNavigate()
   const { lang } = useLang()
-  const [city, setCity] = useState('')
+  const [city, setCity] = useState(() => sessionStorage.getItem('bonapp_city') || '')
   const [cities, setCities] = useState<string[]>([])
   const [citiesLoading, setCitiesLoading] = useState(true)
 
@@ -82,7 +82,10 @@ export default function HomePage() {
         <div className="mb-5">
           <select
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={(e) => {
+              setCity(e.target.value)
+              sessionStorage.setItem('bonapp_city', e.target.value)
+            }}
             disabled={citiesLoading}
             className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors disabled:opacity-50"
           >
