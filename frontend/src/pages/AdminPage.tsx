@@ -42,6 +42,11 @@ const CUISINE_LABELS: Record<string, string> = {
 
 
 interface EditState {
+  name: string
+  city: string
+  address: string
+  phone: string
+  cuisine_primary: string
   verification_status: string
   partner_status: string
   notes: string
@@ -123,6 +128,11 @@ export default function AdminPage() {
       const initEdits: Record<number, EditState> = {}
       data.forEach((r) => {
         initEdits[r.id] = {
+          name: r.name,
+          city: r.city ?? '',
+          address: r.address ?? '',
+          phone: r.phone ?? '',
+          cuisine_primary: r.cuisine_primary ?? '',
           verification_status: r.verification_status,
           partner_status: r.partner_status,
           notes: r.notes ?? '',
@@ -173,6 +183,11 @@ export default function AdminPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: body.name,
+          city: body.city || null,
+          address: body.address || null,
+          phone: body.phone || null,
+          cuisine_primary: body.cuisine_primary || null,
           verification_status: body.verification_status,
           partner_status: body.partner_status,
           notes: body.notes || null,
@@ -277,6 +292,11 @@ export default function AdminPage() {
     const e = edits[r.id]
     if (!e) return false
     return (
+      e.name !== r.name ||
+      e.city !== (r.city ?? '') ||
+      e.address !== (r.address ?? '') ||
+      e.phone !== (r.phone ?? '') ||
+      e.cuisine_primary !== (r.cuisine_primary ?? '') ||
       e.verification_status !== r.verification_status ||
       e.partner_status !== r.partner_status ||
       e.notes !== (r.notes ?? '')
