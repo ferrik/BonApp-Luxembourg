@@ -26,6 +26,11 @@ export async function fetchRestaurants(params?: {
   return handleResponse<Restaurant[]>(res)
 }
 
+export async function fetchCities(): Promise<string[]> {
+  const res = await fetch(`${BASE_URL}/restaurants/cities`)
+  return handleResponse<string[]>(res)
+}
+
 export async function fetchRestaurantById(id: number): Promise<Restaurant> {
   const res = await fetch(`${BASE_URL}/restaurants/${id}`)
   return handleResponse<Restaurant>(res)

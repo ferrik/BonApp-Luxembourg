@@ -36,6 +36,14 @@ const strings: Record<string, Record<Lang, string>> = {
     en: '🎲 Pick for me',
     fr: '🎲 Choisir pour moi',
   },
+  'home.cityLabel': {
+    en: '📍 Anywhere in Luxembourg',
+    fr: '📍 Partout au Luxembourg',
+  },
+  'home.cityLoading': {
+    en: 'Loading cities...',
+    fr: 'Chargement des villes...',
+  },
   'home.disclaimer': {
     en: 'BonApp does not deliver food. Orders happen directly with the restaurant.',
     fr: "BonApp ne livre pas de nourriture. Les commandes se font directement avec le restaurant.",

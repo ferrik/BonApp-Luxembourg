@@ -5,6 +5,23 @@ const router = Router()
 
 const ALLOWED_CUISINES = ['Italian', 'Asian', 'Burger', 'Kebab', 'Local', 'Healthy', 'Indian', 'Other']
 
+// GET /api/restaurants/cities — returns distinct non-null cities ordered alphabetically
+router.get('/cities', async (_req: Request, res: Response) => {
+  try {
+    const result = await pool.query(
+      `SELECT DISTINCT city FROM restaurants
+       WHERE city IS NOT NULL AND city <> ''
+         AND partner_status NOT IN ('paused', 'rejected')
+       ORDER BY city ASC`
+    )
+    const cities: string[] = result.rows.map((r: { city: string }) => r.city)
+    res.json(cities)
+  } catch (err) {
+    console.error('[restaurants] GET /cities error:', err)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // GET /api/restaurants
 // Query params: cuisine (string), limit (number — capped at 3 for user flow, 200 for admin)
 router.get('/', async (req: Request, res: Response) => {

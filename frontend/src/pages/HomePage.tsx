@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useLang } from '../context/LangContext'
 import { t } from '../lib/i18n'
+import { fetchCities } from '../lib/api'
 
 // Primary categories shown prominently (Ескіз 1 — 5 main + Other)
 const PRIMARY_CATS = [
@@ -21,21 +22,20 @@ const HOW_IT_WORKS = [
   { step: '3', key: 'howItWorks.step3', icon: '🛵' },
 ]
 
-const LUX_CITIES = [
-  'Luxembourg City',
-  'Esch-sur-Alzette',
-  'Differdange',
-  'Dudelange',
-  'Pétange',
-  'Schifflange',
-  'Strassen',
-  'Bettembourg'
-]
 
 export default function HomePage() {
   const navigate = useNavigate()
   const { lang } = useLang()
   const [city, setCity] = useState('')
+  const [cities, setCities] = useState<string[]>([])
+  const [citiesLoading, setCitiesLoading] = useState(true)
+
+  useEffect(() => {
+    fetchCities()
+      .then(setCities)
+      .catch(() => setCities([]))
+      .finally(() => setCitiesLoading(false))
+  }, [])
 
   function handleCategory(cuisine: string) {
     const url = new URLSearchParams()
@@ -79,15 +79,17 @@ export default function HomePage() {
       {/* ── MAIN CTA + CATEGORIES ── */}
       <section className="max-w-lg w-full mx-auto px-4 pb-8">
 
-        {/* Location Selector */}
         <div className="mb-5">
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
+            disabled={citiesLoading}
+            className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors disabled:opacity-50"
           >
-            <option value="">Anywhere in Luxembourg</option>
-            {LUX_CITIES.map((c) => (
+            <option value="">
+              {citiesLoading ? t('home.cityLoading', lang) : t('home.cityLabel', lang)}
+            </option>
+            {cities.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
