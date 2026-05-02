@@ -44,8 +44,8 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     if (cuisine && ALLOWED_CUISINES.includes(cuisine)) {
-      query += ` AND cuisine_primary = $${idx++}`
-      values.push(cuisine)
+      query += ` AND cuisine_primary ILIKE $${idx++}`
+      values.push(`%${cuisine}%`)
     }
 
     if (city) {
