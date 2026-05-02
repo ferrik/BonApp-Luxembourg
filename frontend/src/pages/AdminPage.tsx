@@ -40,6 +40,20 @@ const CUISINE_LABELS: Record<string, string> = {
   Other: 'Other (Інше)'
 }
 
+const getVerStatusColor = (val: string) => {
+  if (val === 'verified') return 'text-emerald-400 border-emerald-500/50 bg-emerald-500/10'
+  if (val === 'needs_verification') return 'text-red-400 border-red-500/50 bg-red-500/10'
+  if (val === 'pending') return 'text-amber-400 border-amber-500/50 bg-amber-500/10'
+  return 'text-white border-zinc-700 bg-zinc-800'
+}
+
+const getPartnerStatusColor = (val: string) => {
+  if (val === 'active' || val === 'premium' || val === 'onboarded') return 'text-emerald-400 border-emerald-500/50 bg-emerald-500/10'
+  if (val === 'rejected' || val === 'paused') return 'text-red-400 border-red-500/50 bg-red-500/10'
+  if (val === 'trial') return 'text-brand-400 border-brand-500/50 bg-brand-500/10'
+  if (val === 'new' || val === 'contacted' || val === 'interested' || val === 'follow_up') return 'text-amber-400 border-amber-500/50 bg-amber-500/10'
+  return 'text-white border-zinc-700 bg-zinc-800'
+}
 
 interface EditState {
   name: string
@@ -497,6 +511,7 @@ export default function AdminPage() {
                 const e = edits[r.id]
                 const status = saveStatus[r.id] ?? 'idle'
                 const dirty = isDirty(r)
+                const isTest = r.name.toLowerCase().includes('test') || r.name.toLowerCase().includes('тест') || r.partner_status === 'trial' || r.verification_status !== 'verified'
 
                 return (
                   <div key={r.id} className={`bg-zinc-900 border rounded-xl p-4 transition-all ${dirty ? 'border-brand-500/50' : 'border-zinc-800'}`}>
@@ -504,6 +519,7 @@ export default function AdminPage() {
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <span className="font-bold text-white text-lg">{r.name}</span>
+                          {isTest && <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">TEST</span>}
                           <span className="badge badge-orange text-[10px]">{r.cuisine_primary}</span>
                         </div>
                         <p className="text-sm text-zinc-400">
@@ -618,7 +634,7 @@ export default function AdminPage() {
                         <select
                           value={e?.verification_status ?? r.verification_status}
                           onChange={(ev) => updateEdit(r.id, 'verification_status', ev.target.value)}
-                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                          className={`w-full border rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 ${getVerStatusColor(e?.verification_status ?? r.verification_status)}`}
                         >
                           {VERIFICATION_OPTIONS.map((o) => <option key={o} value={o}>{VERIFICATION_LABELS[o] || o}</option>)}
                         </select>
@@ -628,7 +644,7 @@ export default function AdminPage() {
                         <select
                           value={e?.partner_status ?? r.partner_status}
                           onChange={(ev) => updateEdit(r.id, 'partner_status', ev.target.value)}
-                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                          className={`w-full border rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-brand-500 ${getPartnerStatusColor(e?.partner_status ?? r.partner_status)}`}
                         >
                           {PARTNER_OPTIONS.map((o) => <option key={o} value={o}>{PARTNER_LABELS[o] || o}</option>)}
                         </select>
