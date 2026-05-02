@@ -87,7 +87,16 @@ export default function RestaurantPage() {
         {t('results.back', lang)}
       </button>
 
-      <div className="card">
+      <div className="card relative overflow-hidden">
+        {/* Test ribbon */}
+        {(r.name.toLowerCase().includes('test') || r.name.toLowerCase().includes('тест') || r.partner_status === 'trial' || r.verification_status !== 'verified') && (
+          <div className="absolute top-0 right-0 overflow-hidden w-24 h-24 z-10 pointer-events-none">
+            <div className="absolute top-4 -right-8 bg-red-500/80 backdrop-blur-sm text-white text-[10px] font-bold py-1 w-32 text-center transform rotate-45 shadow-sm border-y border-red-500/30 uppercase tracking-widest">
+              ТЕСТ
+            </div>
+          </div>
+        )}
+
         {/* Header strip */}
         <div className="h-2 bg-gradient-to-r from-brand-500 to-brand-400" />
 
