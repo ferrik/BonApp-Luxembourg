@@ -274,8 +274,8 @@ export default function AdminPage() {
       <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs rounded-xl px-4 py-3 mb-6 flex items-start gap-2">
         <span className="text-base">⚠️</span>
         <span>
-          <strong>TODO:</strong> This admin panel has no authentication.
-          Add auth before production launch.
+          <strong>TODO:</strong> Ця адмін-панель не захищена автентифікацією.
+          Додайте авторизацію перед виходом у продакшн.
         </span>
       </div>
 
@@ -293,7 +293,7 @@ export default function AdminPage() {
           }}
           className="btn-secondary text-xs px-4 py-2"
         >
-          ↻ Refresh
+          ↻ Оновити
         </button>
       </div>
 
@@ -340,10 +340,10 @@ export default function AdminPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 text-center">
                   <p className="text-3xl font-extrabold text-white">{analytics.total_clicks}</p>
-                  <p className="text-sm text-zinc-500 mt-1">Total CTA Clicks</p>
+                  <p className="text-sm text-zinc-500 mt-1">Всього кліків CTA</p>
                 </div>
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                  <h3 className="text-sm font-bold text-white mb-3">By Event Type</h3>
+                  <h3 className="text-sm font-bold text-white mb-3">За типом події</h3>
                   <div className="space-y-2">
                     {analytics.by_event_type?.map((t: any) => (
                       <div key={t.event_type} className="flex justify-between text-sm">
@@ -356,7 +356,7 @@ export default function AdminPage() {
               </div>
 
               <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h3 className="text-sm font-bold text-white mb-4">Recent Clicks (Last 20)</h3>
+                <h3 className="text-sm font-bold text-white mb-4">Останні кліки (20 шт.)</h3>
                 <div className="space-y-3">
                   {analytics.recent?.map((r: any, i: number) => (
                     <div key={i} className="flex items-center justify-between border-b border-zinc-800 pb-2 last:border-0 last:pb-0">
@@ -373,7 +373,7 @@ export default function AdminPage() {
               </div>
             </>
           ) : (
-            <p className="text-zinc-500 text-sm">Could not load analytics.</p>
+            <p className="text-zinc-500 text-sm">Не вдалося завантажити аналітику.</p>
           )}
         </div>
       )}
@@ -384,19 +384,19 @@ export default function AdminPage() {
           <div className="grid grid-cols-3 gap-3 mb-6">
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
               <p className="text-2xl font-extrabold text-white">{restaurants.length}</p>
-              <p className="text-xs text-zinc-500 mt-1">Total</p>
+              <p className="text-xs text-zinc-500 mt-1">Всього</p>
             </div>
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
               <p className="text-2xl font-extrabold text-emerald-400">
                 {restaurants.filter((r) => r.verification_status === 'verified').length}
               </p>
-              <p className="text-xs text-zinc-500 mt-1">Verified</p>
+              <p className="text-xs text-zinc-500 mt-1">Підтверджено</p>
             </div>
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
               <p className="text-2xl font-extrabold text-brand-400">
                 {restaurants.filter((r) => r.partner_status === 'active').length}
               </p>
-              <p className="text-xs text-zinc-500 mt-1">Active</p>
+              <p className="text-xs text-zinc-500 mt-1">Активних</p>
             </div>
           </div>
 
@@ -404,7 +404,7 @@ export default function AdminPage() {
           <div className="flex flex-wrap gap-3 mb-6">
             <input
               type="text"
-              placeholder="Search name or city..."
+              placeholder="Пошук за назвою або містом..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-brand-500 flex-1 min-w-[160px]"
@@ -414,7 +414,7 @@ export default function AdminPage() {
               onChange={(e) => setFilterCuisine(e.target.value)}
               className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
             >
-              <option value="">All cuisines</option>
+              <option value="">Всі кухні</option>
               {cuisines.map((c) => <option key={c} value={c!}>{c}</option>)}
             </select>
             <select
@@ -422,7 +422,7 @@ export default function AdminPage() {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
             >
-              <option value="">All statuses</option>
+              <option value="">Всі статуси</option>
               {VERIFICATION_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
@@ -434,7 +434,7 @@ export default function AdminPage() {
             </div>
           )}
           {error && !loading && <p className="text-red-400 text-sm">{error}</p>}
-          {!loading && !error && filtered.length === 0 && <p className="text-zinc-500 text-sm text-center py-12">No restaurants found.</p>}
+          {!loading && !error && filtered.length === 0 && <p className="text-zinc-500 text-sm text-center py-12">Ресторанів не знайдено.</p>}
 
           {!loading && !error && filtered.length > 0 && (
             <div className="space-y-3">
@@ -452,7 +452,7 @@ export default function AdminPage() {
                           <span className="badge badge-orange text-[10px]">{r.cuisine_primary}</span>
                         </div>
                         <p className="text-sm text-zinc-400">
-                          {r.phone || 'No phone'} · <span className="text-zinc-500">ID #{r.id}</span>
+                          {r.phone || 'Немає телефону'} · <span className="text-zinc-500">ID #{r.id}</span>
                         </p>
                         <p className="text-xs text-zinc-500 mt-0.5">
                           {[r.city, r.address].filter(Boolean).join(' · ')}
@@ -469,34 +469,34 @@ export default function AdminPage() {
                           : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
                         }`}
                       >
-                        {status === 'saving' ? '...' : status === 'saved' ? '✓ Saved' : status === 'error' ? '✗ Error' : 'Save'}
+                        {status === 'saving' ? '...' : status === 'saved' ? '✓ Збережено' : status === 'error' ? '✗ Помилка' : 'Зберегти'}
                       </button>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-zinc-950 p-3 rounded-lg text-xs">
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Website</span>
+                        <span className="block text-zinc-500 mb-0.5">Сайт</span>
                         {r.website_url ? <a href={r.website_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Delivery / Menu</span>
+                        <span className="block text-zinc-500 mb-0.5">Доставка / Меню</span>
                         {r.delivery_url ? <a href={r.delivery_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Fees & Min</span>
+                        <span className="block text-zinc-500 mb-0.5">Комісія та мін. замовлення</span>
                         <span className="text-zinc-300">Min: €{r.min_order_eur ?? '-'} / Fee: €{r.delivery_fee_eur ?? '-'}</span>
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Delivery Config</span>
+                        <span className="block text-zinc-500 mb-0.5">Конфігурація доставки</span>
                         <span className="text-zinc-300">
-                          {[r.own_delivery ? 'Own' : null, r.pickup ? 'Pickup' : null].filter(Boolean).join(', ') || 'None'}
+                          {[r.own_delivery ? 'Власна' : null, r.pickup ? 'Самовивіз' : null].filter(Boolean).join(', ') || 'Немає'}
                         </span>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Verification status</label>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Статус верифікації</label>
                         <select
                           value={e?.verification_status ?? r.verification_status}
                           onChange={(ev) => updateEdit(r.id, 'verification_status', ev.target.value)}
@@ -506,7 +506,7 @@ export default function AdminPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Partner status</label>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Статус партнера</label>
                         <select
                           value={e?.partner_status ?? r.partner_status}
                           onChange={(ev) => updateEdit(r.id, 'partner_status', ev.target.value)}
@@ -516,12 +516,12 @@ export default function AdminPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Notes</label>
+                        <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">Примітка</label>
                         <input
                           type="text"
                           value={e?.notes ?? ''}
                           onChange={(ev) => updateEdit(r.id, 'notes', ev.target.value)}
-                          placeholder="Internal note..."
+                          placeholder="Внутрішня примітка..."
                           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-brand-500"
                         />
                       </div>
@@ -574,13 +574,13 @@ export default function AdminPage() {
                           <span className={`badge ${app.status === 'pending' ? 'badge-orange' : app.status === 'active' ? 'badge-green' : 'badge-zinc'}`}>
                             {app.status}
                           </span>
-                          {app.application_type === 'update' && <span className="badge badge-zinc">Update req</span>}
+                          {app.application_type === 'update' && <span className="badge badge-zinc">Запит на оновлення</span>}
                         </div>
                         <p className="text-sm text-zinc-400">
                           {app.contact_name} · <a href={`mailto:${app.contact_email}`} className="text-brand-400 hover:underline">{app.contact_email}</a> · {app.contact_phone}
                         </p>
                         <p className="text-xs text-zinc-500 mt-1">
-                          Submitted: {new Date(app.created_at).toLocaleString()}
+                          Подано: {new Date(app.created_at).toLocaleString()}
                         </p>
                       </div>
 
@@ -618,32 +618,32 @@ export default function AdminPage() {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-zinc-950 p-3 rounded-lg text-xs">
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Location</span>
+                        <span className="block text-zinc-500 mb-0.5">Місцезнаходження</span>
                         <span className="text-zinc-300">{app.city || '—'}, {app.address || '—'}</span>
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Cuisine</span>
+                        <span className="block text-zinc-500 mb-0.5">Кухня</span>
                         <span className="text-zinc-300">{app.cuisine_type || '—'}</span>
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Menu URL</span>
+                        <span className="block text-zinc-500 mb-0.5">URL меню</span>
                         {app.menu_url ? <a href={app.menu_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Ordering URL</span>
+                        <span className="block text-zinc-500 mb-0.5">URL замовлення</span>
                         {app.ordering_url ? <a href={app.ordering_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Link</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Delivery?</span>
-                        <span className={app.offers_delivery ? 'text-emerald-400' : 'text-zinc-600'}>{app.offers_delivery ? 'Yes' : 'No'}</span>
-                        {app.offers_delivery && app.delivery_areas && <span className="text-zinc-500 block">Areas: {app.delivery_areas}</span>}
+                        <span className="block text-zinc-500 mb-0.5">Доставка?</span>
+                        <span className={app.offers_delivery ? 'text-emerald-400' : 'text-zinc-600'}>{app.offers_delivery ? 'Так' : 'Ні'}</span>
+                        {app.offers_delivery && app.delivery_areas && <span className="text-zinc-500 block">Зони: {app.delivery_areas}</span>}
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Fees & Min</span>
+                        <span className="block text-zinc-500 mb-0.5">Комісія та мін. замовлення</span>
                         <span className="text-zinc-300">Min: €{app.min_order_eur ?? '-'} / Fee: €{app.delivery_fee_eur ?? '-'}</span>
                       </div>
                       <div className="col-span-2">
-                        <span className="block text-zinc-500 mb-0.5">Notes from restaurant</span>
+                        <span className="block text-zinc-500 mb-0.5">Примітки від ресторану</span>
                         <span className="text-zinc-300">{app.notes || '—'}</span>
                       </div>
                     </div>
