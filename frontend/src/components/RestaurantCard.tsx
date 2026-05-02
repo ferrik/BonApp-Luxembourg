@@ -35,7 +35,7 @@ export default function RestaurantCard({ restaurant: r, rank }: Props) {
   const badges: string[] = []
   if (r.own_delivery)    badges.push(t('restaurant.delivery', lang))
   if (r.pickup)          badges.push(t('restaurant.pickup', lang))
-  if (r.direct_ordering) badges.push(t('restaurant.ordering', lang))
+  if (r.phone)           badges.push(t('restaurant.ordering', lang))
 
   const blurb = bestForBlurb(r)
 

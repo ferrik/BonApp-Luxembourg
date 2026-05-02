@@ -117,14 +117,14 @@ const strings: Record<string, Record<Lang, string>> = {
   // Restaurant card / detail
   'restaurant.delivery':    { en: 'Delivery', fr: 'Livraison' },
   'restaurant.pickup':      { en: 'Pickup', fr: 'À emporter' },
-  'restaurant.ordering':    { en: 'Online order', fr: 'Commande en ligne' },
+  'restaurant.ordering':    { en: '📞 Phone', fr: '📞 Téléphone' },
   'restaurant.bestFor':     { en: 'Best for:', fr: 'Idéal pour :' },
-  'restaurant.viewDetail':  { en: 'See order options', fr: 'Voir les options' },
+  'restaurant.viewDetail':  { en: '📞 Order now →', fr: '📞 Commander →' },
   // Smart CTA labels
   'restaurant.order':       { en: '🛒 Order online', fr: '🛒 Commander en ligne' },
-  'restaurant.callToOrder': { en: '📞 Order by phone', fr: '📞 Commander par téléphone' },
+  'restaurant.callToOrder': { en: '📞 Call to order', fr: '📞 Appeler pour commander' },
   'restaurant.call':        { en: '📞 Call', fr: '📞 Appeler' },
-  'restaurant.website':     { en: '📋 View menu', fr: '📋 Voir le menu' },
+  'restaurant.website':     { en: '📋 Restaurant menu', fr: '📋 Menu du restaurant' },
   'restaurant.minOrder':    { en: 'Min. order', fr: 'Commande min.' },
   'restaurant.deliveryFee': { en: 'Delivery fee', fr: 'Frais de livraison' },
   'restaurant.notAvailable': { en: 'Contact for details', fr: 'Contacter pour les détails' },
@@ -134,10 +134,9 @@ const strings: Record<string, Record<Lang, string>> = {
   },
   
   // Perks & Hook
-  'restaurant.hook': { en: '🔥 Order direct — no fees', fr: '🔥 Commande directe — sans frais' },
-  'restaurant.perkPickupOnly': { en: 'Pickup only', fr: 'À emporter uniquement' },
-  'restaurant.perkDelivery': { en: 'Delivery & Pickup', fr: 'Livraison & À emporter' },
-  'restaurant.perkReady': { en: 'Ready in minutes', fr: 'Prêt en quelques minutes' },
+  'restaurant.hook': { en: '🔥 No fees — direct to restaurant', fr: '🔥 Sans frais — direct au restaurant' },
+  'restaurant.perkPhone': { en: 'Phone orders accepted', fr: 'Commandes par téléphone' },
+  'restaurant.perkReady': { en: 'Ready in 10-15 mins', fr: 'Prêt en 10-15 min' },
   'restaurant.perkPay': { en: 'Pay at restaurant', fr: 'Paiement au restaurant' },
 
   // Footer

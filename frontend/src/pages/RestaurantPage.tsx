@@ -66,11 +66,6 @@ export default function RestaurantPage() {
 
   const r = restaurant
 
-  const badges: string[] = []
-  if (r.own_delivery)    badges.push(t('restaurant.delivery', lang))
-  if (r.pickup)          badges.push(t('restaurant.pickup', lang))
-  if (r.direct_ordering) badges.push(t('restaurant.ordering', lang))
-
   // ── Smart CTA logic ──
   // Priority: online order URL → call to order (phone) → website
   const hasOnlineOrder = Boolean(r.delivery_url)
@@ -134,15 +129,6 @@ export default function RestaurantPage() {
             </p>
           )}
 
-          {/* Service badges */}
-          {badges.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {badges.map((b) => (
-                <span key={b} className="badge badge-green">{b}</span>
-              ))}
-            </div>
-          )}
-
           {/* Info grid */}
           <div className="grid grid-cols-2 gap-3 mb-8 text-sm">
             {r.min_order_eur != null && (
@@ -165,21 +151,11 @@ export default function RestaurantPage() {
           </div>
 
           {/* ── SMART CTA BUTTONS ── */}
+          {/* Priority: Call (Phone) -> Order Online (URL) -> Website */}
           <div className="space-y-3">
-
-            {/* Case 1: has online order URL */}
-            {hasOnlineOrder && (
-              <button
-                id={`cta-order-${r.id}`}
-                onClick={() => handleCta('order_click', r.delivery_url)}
-                className="btn-primary w-full py-4 text-base"
-              >
-                {t('restaurant.order', lang)}
-              </button>
-            )}
-
-            {/* Case 2: no online order, but has phone → "Call to order" as primary */}
-            {!hasOnlineOrder && hasPhone && (
+            
+            {/* Case 1: has phone -> "Call to order" as primary */}
+            {hasPhone && (
               <a
                 id={`cta-call-primary-${r.id}`}
                 href={`tel:${r.phone}`}
@@ -190,35 +166,23 @@ export default function RestaurantPage() {
               </a>
             )}
 
-            {/* Case 3: no online order, no phone, website only → website as primary */}
-            {!hasOnlineOrder && !hasPhone && hasWebsite && (
+            {/* Case 2: has online order -> "Order online" */}
+            {hasOnlineOrder && (
               <button
-                id={`cta-website-primary-${r.id}`}
-                onClick={() => handleCta('website_click', r.website_url)}
-                className="btn-primary w-full py-4 text-base"
+                id={`cta-order-${r.id}`}
+                onClick={() => handleCta('order_click', r.delivery_url)}
+                className={hasPhone ? "btn-secondary w-full py-3 text-sm" : "btn-primary w-full py-4 text-base"}
               >
-                {t('restaurant.website', lang)}
+                {t('restaurant.order', lang)}
               </button>
             )}
 
-            {/* Secondary: call (shown when online order exists) */}
-            {hasOnlineOrder && hasPhone && (
-              <a
-                id={`cta-call-${r.id}`}
-                href={`tel:${r.phone}`}
-                onClick={() => handleCta('call_click', null)}
-                className="btn-secondary w-full py-4 text-base text-center block"
-              >
-                {t('restaurant.call', lang)} · {r.phone}
-              </a>
-            )}
-
-            {/* Secondary: website */}
-            {hasWebsite && (hasOnlineOrder || hasPhone) && (
+            {/* Case 3: website */}
+            {hasWebsite && (
               <button
                 id={`cta-website-${r.id}`}
                 onClick={() => handleCta('website_click', r.website_url)}
-                className="btn-secondary w-full py-3 text-sm"
+                className={hasPhone || hasOnlineOrder ? "btn-secondary w-full py-3 text-sm" : "btn-primary w-full py-4 text-base"}
               >
                 {t('restaurant.website', lang)}
               </button>
@@ -236,7 +200,7 @@ export default function RestaurantPage() {
           <div className="mt-6 flex flex-col gap-2.5 text-sm text-zinc-300 border border-zinc-800 rounded-xl p-5 bg-zinc-900/50">
             <div className="flex items-center gap-3">
               <span className="text-emerald-400 bg-emerald-400/10 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">✓</span> 
-              {r.own_delivery ? t('restaurant.perkDelivery', lang) : t('restaurant.perkPickupOnly', lang)}
+              {t('restaurant.perkPhone', lang)}
             </div>
             <div className="flex items-center gap-3">
               <span className="text-emerald-400 bg-emerald-400/10 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">✓</span> 
