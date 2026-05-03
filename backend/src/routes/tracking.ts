@@ -51,7 +51,7 @@ router.post('/click', async (req: Request, res: Response) => {
 })
 
 // GET /api/tracking/summary — smoke test helper
-// Returns recent clicks with restaurant names
+// Returns recent clicks with restaurant names, plus aggregated analytics
 router.get('/summary', async (_req: Request, res: Response) => {
   try {
     const recent = await pool.query(`
@@ -69,12 +69,39 @@ router.get('/summary', async (_req: Request, res: Response) => {
       ORDER BY count DESC
     `)
 
+    const by_restaurant = await pool.query(`
+      SELECT r.name, COUNT(c.id) as count
+      FROM restaurant_clicks c
+      JOIN restaurants r ON r.id = c.restaurant_id
+      GROUP BY r.id, r.name
+      ORDER BY count DESC
+      LIMIT 50
+    `)
+
+    const by_date = await pool.query(`
+      SELECT DATE(created_at) as date, COUNT(*) as count
+      FROM restaurant_clicks
+      GROUP BY DATE(created_at)
+      ORDER BY date DESC
+      LIMIT 30
+    `)
+
+    const by_hour = await pool.query(`
+      SELECT EXTRACT(HOUR FROM created_at) as hour, COUNT(*) as count
+      FROM restaurant_clicks
+      GROUP BY EXTRACT(HOUR FROM created_at)
+      ORDER BY hour ASC
+    `)
+
     const total = await pool.query('SELECT COUNT(*) as total FROM restaurant_clicks')
 
     res.json({
       total_clicks: Number(total.rows[0].total),
       by_event_type: totals.rows,
       recent: recent.rows,
+      by_restaurant: by_restaurant.rows,
+      by_date: by_date.rows,
+      by_hour: by_hour.rows,
     })
   } catch (err) {
     console.error('[tracking] GET /summary error:', err)

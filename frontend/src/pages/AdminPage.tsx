@@ -417,19 +417,79 @@ export default function AdminPage() {
           ) : analytics ? (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 text-center">
-                  <p className="text-3xl font-extrabold text-white">{analytics.total_clicks}</p>
-                  <p className="text-sm text-zinc-500 mt-1">Всього кліків CTA</p>
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col justify-center items-center text-center">
+                  <p className="text-4xl font-extrabold text-white">{analytics.total_clicks}</p>
+                  <p className="text-sm text-zinc-500 mt-2">Всього кліків CTA</p>
                 </div>
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                  <h3 className="text-sm font-bold text-white mb-3">За типом події</h3>
+                  <h3 className="text-sm font-bold text-white mb-3">За типом події (переходи)</h3>
                   <div className="space-y-2">
                     {analytics.by_event_type?.map((t: any) => (
                       <div key={t.event_type} className="flex justify-between text-sm">
                         <span className="text-zinc-400">{t.event_type}</span>
-                        <span className="font-bold text-white">{t.count}</span>
+                        <span className="font-bold text-white bg-zinc-800 px-2 py-0.5 rounded-md">{t.count}</span>
                       </div>
                     ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Top Restaurants */}
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 max-h-[400px] overflow-y-auto">
+                  <h3 className="text-sm font-bold text-white mb-4 sticky top-0 bg-zinc-900 pb-2">Топ ресторанів</h3>
+                  <div className="space-y-3">
+                    {analytics.by_restaurant?.map((r: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between text-sm border-b border-zinc-800/50 pb-2 last:border-0 last:pb-0">
+                        <span className="text-zinc-300 font-medium truncate pr-4">{r.name}</span>
+                        <span className="text-brand-400 font-bold shrink-0">{r.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dates & Hours */}
+                <div className="space-y-4">
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                    <h3 className="text-sm font-bold text-white mb-3">Динаміка по днях</h3>
+                    <div className="space-y-2 max-h-[160px] overflow-y-auto">
+                      {analytics.by_date?.map((d: any, i: number) => {
+                        // date is ISO string or YYYY-MM-DD
+                        const dateStr = new Date(d.date).toLocaleDateString('uk-UA');
+                        return (
+                          <div key={i} className="flex justify-between text-sm">
+                            <span className="text-zinc-400">{dateStr}</span>
+                            <span className="font-bold text-white">{d.count}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                    <h3 className="text-sm font-bold text-white mb-3">Активність по годинах</h3>
+                    <div className="flex gap-1 items-end h-16 mt-2">
+                      {Array.from({length: 24}).map((_, h) => {
+                        const hrData = analytics.by_hour?.find((x: any) => Number(x.hour) === h);
+                        const count = hrData ? Number(hrData.count) : 0;
+                        const maxCount = Math.max(...(analytics.by_hour?.map((x: any) => Number(x.count)) || [1]));
+                        const heightPct = count > 0 ? Math.max((count / maxCount) * 100, 10) : 0;
+                        return (
+                          <div key={h} className="flex-1 flex flex-col justify-end items-center group relative">
+                            {count > 0 && (
+                              <div className="hidden group-hover:block absolute -top-8 bg-zinc-800 text-white text-[10px] px-1.5 py-0.5 rounded z-10 whitespace-nowrap">
+                                {h}:00 - {count}
+                              </div>
+                            )}
+                            <div 
+                              className={`w-full rounded-t-sm transition-all ${count > 0 ? 'bg-brand-500' : 'bg-zinc-800'}`} 
+                              style={{ height: `${heightPct}%` }}
+                            />
+                            <span className="text-[8px] text-zinc-600 mt-1">{h}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -444,7 +504,7 @@ export default function AdminPage() {
                         <p className="text-xs text-zinc-500">{r.city} · {r.event_type}</p>
                       </div>
                       <span className="text-xs text-zinc-500">
-                        {new Date(r.created_at).toLocaleString()}
+                        {new Date(r.created_at).toLocaleString('uk-UA')}
                       </span>
                     </div>
                   ))}
