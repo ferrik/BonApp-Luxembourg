@@ -44,6 +44,7 @@ router.post('/apply', async (req: Request, res: Response) => {
     delivery_fee_eur,
     est_delivery_min,
     notes,
+    opening_hours,
   } = req.body
 
   if (!restaurant_name?.trim()) return res.status(400).json({ error: 'restaurant_name is required' })
@@ -59,10 +60,10 @@ router.post('/apply', async (req: Request, res: Response) => {
         website_url, ordering_url, menu_url,
         offers_delivery, offers_pickup,
         delivery_areas, min_order_eur, delivery_fee_eur, est_delivery_min,
-        notes
+        notes, opening_hours
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
-        $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
+        $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
       ) RETURNING id, status, created_at`,
       [
         application_type, existing_restaurant_id ?? null,
@@ -75,6 +76,7 @@ router.post('/apply', async (req: Request, res: Response) => {
         delivery_fee_eur != null ? Number(delivery_fee_eur) : null,
         est_delivery_min != null ? Number(est_delivery_min) : null,
         notes ?? null,
+        opening_hours ?? null,
       ]
     )
 
@@ -132,7 +134,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     contact_name, contact_phone, contact_email,
     website_url, ordering_url, menu_url,
     offers_delivery, offers_pickup,
-    delivery_areas, notes,
+    delivery_areas, notes, opening_hours,
   } = req.body
 
   const VALID_STATUSES = ['pending', 'active', 'rejected']
@@ -160,6 +162,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
   if (offers_pickup !== undefined)   { updates.push(`offers_pickup = $${idx++}`);   values.push(Boolean(offers_pickup)) }
   if (delivery_areas !== undefined)  { updates.push(`delivery_areas = $${idx++}`);  values.push(delivery_areas) }
   if (notes !== undefined)           { updates.push(`notes = $${idx++}`);           values.push(notes) }
+  if (opening_hours !== undefined)   { updates.push(`opening_hours = $${idx++}`);   values.push(opening_hours) }
 
   if (updates.length === 0) return res.status(400).json({ error: 'Nothing to update' })
 

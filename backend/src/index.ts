@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS partner_applications (
   status                 TEXT NOT NULL DEFAULT 'pending'
                            CHECK (status IN ('pending', 'active', 'rejected')),
   admin_notes            TEXT,
+  opening_hours          TEXT,
   created_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at             TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -82,6 +83,16 @@ CREATE INDEX IF NOT EXISTS idx_partner_applications_status
   ON partner_applications (status);
 CREATE INDEX IF NOT EXISTS idx_partner_applications_created
   ON partner_applications (created_at DESC);
+-- idempotent: add opening_hours to partner_applications if missing
+DO $$ BEGIN
+  ALTER TABLE partner_applications ADD COLUMN IF NOT EXISTS opening_hours TEXT;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+-- idempotent: add opening_hours to restaurants if missing
+DO $$ BEGIN
+  ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS opening_hours TEXT;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
 `
 
 async function runMigrations(): Promise<void> {

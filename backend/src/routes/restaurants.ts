@@ -157,7 +157,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
       'own_delivery','pickup','direct_ordering','third_party',
       'min_order_eur','delivery_fee_eur','delivery_zone_notes',
       'source_name','source_url','verification_status',
-      'partner_status','billing_enabled','pricing_plan','notes',
+      'partner_status','billing_enabled','pricing_plan','notes','opening_hours',
     ]
 
     const updates: string[] = []

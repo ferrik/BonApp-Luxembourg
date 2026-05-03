@@ -25,6 +25,7 @@ export interface Restaurant {
   billing_enabled: boolean
   pricing_plan: string
   notes: string | null
+  opening_hours: string | null
   created_at: string
   updated_at: string
 }
@@ -79,6 +80,7 @@ export interface PartnerApplicationPayload {
   est_delivery_min?: number | null
 
   notes?: string
+  opening_hours?: string
 }
 
 export interface PartnerApplicationResponse {

@@ -67,6 +67,7 @@ interface EditState {
   website_url: string
   delivery_url: string
   direct_ordering: boolean
+  opening_hours: string
 }
 
 interface AppEditState {
@@ -156,6 +157,7 @@ export default function AdminPage() {
           website_url: r.website_url ?? '',
           delivery_url: r.delivery_url ?? '',
           direct_ordering: r.direct_ordering ?? false,
+          opening_hours: r.opening_hours ?? '',
         }
       })
       setEdits(initEdits)
@@ -214,6 +216,7 @@ export default function AdminPage() {
           website_url: body.website_url || null,
           delivery_url: body.delivery_url || null,
           direct_ordering: body.direct_ordering,
+          opening_hours: body.opening_hours || null,
         }),
       })
       if (!res.ok) throw new Error('Failed to save')
@@ -325,7 +328,8 @@ export default function AdminPage() {
       e.direct_ordering !== (r.direct_ordering ?? false) ||
       e.verification_status !== r.verification_status ||
       e.partner_status !== r.partner_status ||
-      e.notes !== (r.notes ?? '')
+      e.notes !== (r.notes ?? '') ||
+      e.opening_hours !== (r.opening_hours ?? '')
     )
   }
 
@@ -752,6 +756,20 @@ export default function AdminPage() {
                           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-brand-500"
                         />
                       </div>
+                    </div>
+
+                    <div className="mt-3">
+                      <label className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">🕐 Графік роботи</label>
+                      <input
+                        type="text"
+                        value={e?.opening_hours ?? r.opening_hours ?? ''}
+                        onChange={(ev) => updateEdit(r.id, 'opening_hours', ev.target.value)}
+                        placeholder="напр. Пн-Пт: 11:00–22:00, Сб-Нд: 12:00–23:00"
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-brand-500"
+                      />
+                      {r.opening_hours && (
+                        <p className="text-[10px] text-zinc-600 mt-1">Поточне: {r.opening_hours}</p>
+                      )}
                     </div>
                   </div>
                 )

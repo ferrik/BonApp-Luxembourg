@@ -9,6 +9,28 @@ const CUISINE_OPTIONS = ['Italian', 'Asian', 'Burger', 'Kebab', 'Indian', 'Local
 
 type AppType = 'join' | 'update'
 
+const DAYS_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const DAYS_FR = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+const DAYS_FULL_EN = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const DAYS_FULL_FR = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+
+type DaySchedule = { open: boolean; from: string; to: string }
+type WeekSchedule = DaySchedule[]
+
+function defaultWeek(): WeekSchedule {
+  return Array.from({ length: 7 }, (_, i) => ({
+    open: i < 5, // Mon-Fri open by default
+    from: '11:00',
+    to: '22:00',
+  }))
+}
+
+function scheduleToString(week: WeekSchedule, daysShort: string[]): string {
+  return week
+    .map((d, i) => d.open ? `${daysShort[i]}: ${d.from}–${d.to}` : `${daysShort[i]}: Closed`)
+    .join(', ')
+}
+
 const LABELS = {
   en: {
     pageTitle: 'Join BonApp Luxembourg',
@@ -20,6 +42,7 @@ const LABELS = {
     sectionContact: 'Your contact details',
     sectionOnline: 'Online presence',
     sectionDelivery: 'Delivery & pickup',
+    sectionHours: 'Opening hours',
     sectionNotes: 'Additional notes',
     restaurantName: 'Restaurant name *',
     cuisineType: 'Cuisine type',
@@ -40,6 +63,10 @@ const LABELS = {
     notes: "Anything else you'd like us to know",
     submit: 'Submit restaurant',
     submitting: 'Sending…',
+    hoursOpen: 'Open',
+    hoursClosed: 'Closed',
+    hoursFrom: 'From',
+    hoursTo: 'To',
     successTitle: 'Thank you! 🎉',
     successMsg: "We'll review your restaurant and contact you before publishing. This usually takes 1-2 business days.",
     successBack: 'Back to home',
@@ -56,6 +83,7 @@ const LABELS = {
     sectionContact: 'Vos coordonnées',
     sectionOnline: 'Présence en ligne',
     sectionDelivery: 'Livraison & retrait',
+    sectionHours: 'Horaires d\'ouverture',
     sectionNotes: 'Notes supplémentaires',
     restaurantName: 'Nom du restaurant *',
     cuisineType: 'Type de cuisine',
@@ -76,6 +104,10 @@ const LABELS = {
     notes: 'Autre information à partager',
     submit: 'Soumettre le restaurant',
     submitting: 'Envoi…',
+    hoursOpen: 'Ouvert',
+    hoursClosed: 'Fermé',
+    hoursFrom: 'De',
+    hoursTo: 'À',
     successTitle: 'Merci ! 🎉',
     successMsg: 'Nous examinerons votre restaurant et vous contacterons avant la publication. Cela prend généralement 1 à 2 jours ouvrables.',
     successBack: 'Retour à l\'accueil',
@@ -132,6 +164,11 @@ export default function PartnersPage() {
   const [deliveryFee, setDeliveryFee]       = useState('')
   const [estDelivery, setEstDelivery]       = useState('')
   const [notes, setNotes]                   = useState('')
+  const [schedule, setSchedule]             = useState<WeekSchedule>(defaultWeek)
+
+  function updateDay(i: number, field: keyof DaySchedule, value: boolean | string) {
+    setSchedule(prev => prev.map((d, idx) => idx === i ? { ...d, [field]: value } : d))
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -161,6 +198,7 @@ export default function PartnersPage() {
       delivery_fee_eur: deliveryFee ? parseFloat(deliveryFee) : null,
       est_delivery_min: estDelivery ? parseInt(estDelivery, 10) : null,
       notes:           notes || undefined,
+      opening_hours:   scheduleToString(schedule, lang === 'fr' ? DAYS_FR : DAYS_EN) || undefined,
     }
 
     setSubmitting(true)
@@ -445,6 +483,54 @@ export default function PartnersPage() {
             </div>
           </>
         )}
+
+        {/* Opening hours */}
+        <SectionTitle>{L.sectionHours}</SectionTitle>
+
+        <div className="space-y-2">
+          {schedule.map((day, i) => {
+            const dayNames = lang === 'fr' ? DAYS_FULL_FR : DAYS_FULL_EN
+            return (
+              <div key={i} className="flex items-center gap-3 bg-zinc-800/40 border border-zinc-700/50 rounded-xl px-3 py-2">
+                <span className="text-xs font-semibold text-zinc-400 w-10 shrink-0">
+                  {(lang === 'fr' ? DAYS_FR : DAYS_EN)[i]}
+                </span>
+                <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    className={checkboxCls}
+                    checked={day.open}
+                    onChange={e => updateDay(i, 'open', e.target.checked)}
+                  />
+                  <span className={`text-xs font-medium ${day.open ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                    {day.open ? L.hoursOpen : L.hoursClosed}
+                  </span>
+                </label>
+                {day.open && (
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-xs text-zinc-500">{L.hoursFrom}</span>
+                    <input
+                      type="time"
+                      value={day.from}
+                      onChange={e => updateDay(i, 'from', e.target.value)}
+                      className="bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-500"
+                    />
+                    <span className="text-xs text-zinc-500">{L.hoursTo}</span>
+                    <input
+                      type="time"
+                      value={day.to}
+                      onChange={e => updateDay(i, 'to', e.target.value)}
+                      className="bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-500"
+                    />
+                  </div>
+                )}
+                {!day.open && (
+                  <span className="text-xs text-zinc-600 italic ml-1">{dayNames[i]}</span>
+                )}
+              </div>
+            )
+          })}
+        </div>
 
         {/* Notes */}
         <SectionTitle>{L.sectionNotes}</SectionTitle>
