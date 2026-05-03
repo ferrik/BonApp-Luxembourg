@@ -119,7 +119,15 @@ export default function RestaurantPage() {
 
           {/* Address */}
           {r.address && (
-            <p className="text-sm text-zinc-500 mb-4">{r.address}</p>
+            <p className="text-sm text-zinc-500 mb-2">{r.address}</p>
+          )}
+
+          {/* Opening hours */}
+          {r.opening_hours && (
+            <div className="flex items-start gap-2 mb-4">
+              <span className="text-base leading-none mt-0.5">🕐</span>
+              <p className="text-sm text-zinc-300 leading-relaxed">{r.opening_hours}</p>
+            </div>
           )}
 
           {/* Description / Notes */}
