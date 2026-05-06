@@ -1,4 +1,4 @@
-// Restaurant entity as returned by the API
+// Restaurant entity as returned by the API (v3)
 export interface Restaurant {
   id: number
   name: string
@@ -28,9 +28,26 @@ export interface Restaurant {
   opening_hours: string | null
   created_at: string
   updated_at: string
+  // v3 discovery fields
+  image_url: string | null
+  pexels_url: string | null
+  image_source: string | null
+  image_status: string | null
+  vibe: string | null
+  seating: string | null
+  parking: boolean
+  scenario: string[] | null
+  lat: number | null
+  lng: number | null
+  price_range: number       // 1=€  2=€€  3=€€€
+  group_size_max: number
+  hours: Record<string, string> | null
+  verified: boolean
+  // injected by backend to signal fallback was used
+  _is_fallback?: boolean
 }
 
-export type EventType = 'restaurant_view' | 'order_click' | 'call_click' | 'website_click'
+export type EventType = 'restaurant_view' | 'call_click' | 'website_click' | 'route_click'
 
 export interface TrackingPayload {
   restaurant_id: number
@@ -42,6 +59,8 @@ export interface TrackingResponse {
   message: string
 }
 
+export type Scenario = 'dinner' | 'coffee' | 'drinks' | 'quick'
+
 export type CuisineCategory =
   | 'Italian'
   | 'Asian'
@@ -51,7 +70,6 @@ export type CuisineCategory =
   | 'Healthy'
   | 'Indian'
   | 'Other'
-  | 'Surprise'
 
 // Partner application — submitted via /partners page
 export interface PartnerApplicationPayload {

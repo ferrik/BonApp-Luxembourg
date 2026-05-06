@@ -48,7 +48,7 @@ export default function Navbar() {
       {/* Tagline stripe */}
       <div className="bg-brand-500/10 border-b border-brand-500/20">
         <p className="text-center text-[10px] text-brand-400 py-1 px-4">
-          {t('nav.tagline', lang)}
+          {t('home.tagline', lang)}
         </p>
       </div>
     </header>

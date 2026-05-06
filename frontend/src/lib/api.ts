@@ -14,14 +14,20 @@ async function handleResponse<T>(res: Response): Promise<T> {
 }
 
 export async function fetchRestaurants(params?: {
-  cuisine?: string
+  scenario?: string
   city?: string
+  price_range?: number
+  group_size?: number
+  cuisine?: string   // legacy / admin
   limit?: number
 }): Promise<Restaurant[]> {
   const url = new URL(BASE_URL + '/restaurants', window.location.origin)
-  if (params?.cuisine) url.searchParams.set('cuisine', params.cuisine)
-  if (params?.city) url.searchParams.set('city', params.city)
-  if (params?.limit) url.searchParams.set('limit', String(params.limit))
+  if (params?.scenario)    url.searchParams.set('scenario',    params.scenario)
+  if (params?.city)        url.searchParams.set('city',        params.city)
+  if (params?.price_range) url.searchParams.set('price_range', String(params.price_range))
+  if (params?.group_size)  url.searchParams.set('group_size',  String(params.group_size))
+  if (params?.cuisine)     url.searchParams.set('cuisine',     params.cuisine)
+  if (params?.limit)       url.searchParams.set('limit',       String(params.limit))
   const res = await fetch(url.toString())
   return handleResponse<Restaurant[]>(res)
 }
@@ -54,4 +60,23 @@ export async function submitPartnerApplication(
     body: JSON.stringify(payload),
   })
   return handleResponse<PartnerApplicationResponse>(res)
+}
+
+// ── trackEvent: always stores locally, silently sends to backend ─────────────
+export function trackEvent(name: string, data: Record<string, unknown> = {}): void {
+  // Local fallback — never lose data
+  try {
+    const events = JSON.parse(localStorage.getItem('bonapp_events') || '[]') as unknown[]
+    events.push({ name, data, ts: Date.now() })
+    localStorage.setItem('bonapp_events', JSON.stringify(events.slice(-100)))
+  } catch {
+    // ignore storage errors
+  }
+
+  // Backend — silent fail, never block UX
+  fetch(`${BASE_URL}/events`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event_name: name, data }),
+  }).catch(() => {})
 }

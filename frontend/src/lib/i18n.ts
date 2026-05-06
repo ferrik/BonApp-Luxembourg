@@ -1,40 +1,31 @@
-// i18n — simple bilingual strings (EN / FR)
-// Usage: t('home.title', lang)
+// i18n — bilingual strings (EN / FR)
+// Usage: t('home.tagline', lang)
 
 type Lang = 'en' | 'fr'
 
 const strings: Record<string, Record<Lang, string>> = {
   // Nav
   'nav.tagline': {
-    en: '3 food picks. Direct restaurant orders.',
-    fr: '3 suggestions. Commande directe au restaurant.',
+    en: 'Where to eat in Luxembourg — decided in seconds.',
+    fr: 'Où manger au Luxembourg — décidé en secondes.',
   },
 
   // Home — hero
-  'home.title': {
-    en: 'Hungry in Luxembourg?',
-    fr: 'Faim au Luxembourg ?',
-  },
-  'home.titleAccent': {
-    en: 'Get 3 smart food picks in seconds.',
-    fr: 'Obtenez 3 suggestions en quelques secondes.',
+  'home.tagline': {
+    en: 'Where to eat in Luxembourg — decided in seconds.',
+    fr: 'Où manger au Luxembourg — décidé en secondes.',
   },
   'home.subtitle': {
-    en: 'No endless scrolling. Choose what you crave and BonApp shows the best direct-order options.',
-    fr: 'Pas de scroll infini. Choisissez ce qui vous fait envie et BonApp affiche les meilleures options de commande directe.',
+    en: 'No endless scrolling. 3 real picks. Direct contact.',
+    fr: 'Pas de scroll infini. 3 vraies options. Contact direct.',
   },
   'home.pickForMe': {
-    en: '🎲 Pick for me',
-    fr: '🎲 Choisir pour moi',
+    en: 'Pick for me',
+    fr: 'Choisir pour moi',
   },
   'home.orChoose': {
-    en: 'or choose your craving',
-    fr: 'ou choisissez ce qui vous fait envie',
-  },
-  // kept for compatibility — not used in UI anymore
-  'home.surprise': {
-    en: '🎲 Pick for me',
-    fr: '🎲 Choisir pour moi',
+    en: 'Or choose your vibe',
+    fr: 'Ou choisissez votre envie',
   },
   'home.cityLabel': {
     en: '📍 Anywhere in Luxembourg',
@@ -45,9 +36,49 @@ const strings: Record<string, Record<Lang, string>> = {
     fr: 'Chargement des villes...',
   },
   'home.disclaimer': {
-    en: 'BonApp does not deliver food. Orders happen directly with the restaurant.',
-    fr: "BonApp ne livre pas de nourriture. Les commandes se font directement avec le restaurant.",
+    en: 'BonApp does not deliver food. You contact the restaurant directly.',
+    fr: 'BonApp ne livre pas de nourriture. Vous contactez le restaurant directement.',
   },
+  'home.savedPlaces': {
+    en: 'Your saved places',
+    fr: 'Vos lieux enregistrés',
+  },
+
+  // Pick for me bottom sheet
+  'pickForMe.title': {
+    en: 'Quick picks',
+    fr: 'Sélection rapide',
+  },
+  'pickForMe.howMany': {
+    en: 'How many people?',
+    fr: 'Combien de personnes ?',
+  },
+  'pickForMe.budget': {
+    en: "What's your budget?",
+    fr: 'Quel est votre budget ?',
+  },
+  'pickForMe.show': {
+    en: 'Show my picks →',
+    fr: 'Voir mes options →',
+  },
+  'pickForMe.justMe': {
+    en: 'Just me',
+    fr: 'Seul(e)',
+  },
+  'pickForMe.twoThree': {
+    en: '2–3',
+    fr: '2–3',
+  },
+  'pickForMe.fourPlus': {
+    en: '4+',
+    fr: '4+',
+  },
+
+  // Scenarios
+  'scenario.dinner': { en: 'Dinner',         fr: 'Dîner' },
+  'scenario.coffee': { en: 'Coffee & desserts', fr: 'Café & desserts' },
+  'scenario.drinks': { en: 'Bar & drinks',   fr: 'Bar & boissons' },
+  'scenario.quick':  { en: 'Quick bite',     fr: 'Rapide' },
 
   // Home — How it works
   'howItWorks.title': {
@@ -55,16 +86,28 @@ const strings: Record<string, Record<Lang, string>> = {
     fr: 'Comment ça marche',
   },
   'howItWorks.step1': {
-    en: 'Choose what you want',
-    fr: 'Choisissez ce que vous voulez',
+    en: 'Choose your vibe',
+    fr: 'Choisissez votre envie',
+  },
+  'howItWorks.step1.hint': {
+    en: 'Dinner, coffee, bar or quick bite',
+    fr: 'Dîner, café, bar ou rapide',
   },
   'howItWorks.step2': {
     en: 'Get 3 local picks',
-    fr: 'Recevez 3 suggestions locales',
+    fr: 'Obtenez 3 options locales',
+  },
+  'howItWorks.step2.hint': {
+    en: 'We find the best places nearby',
+    fr: 'Nous trouvons les meilleurs endroits près de vous',
   },
   'howItWorks.step3': {
-    en: 'Order directly from the restaurant',
-    fr: 'Commandez directement auprès du restaurant',
+    en: 'Visit or call directly',
+    fr: 'Visitez ou appelez directement',
+  },
+  'howItWorks.step3.hint': {
+    en: 'No commissions. No delivery. Ever.',
+    fr: 'Sans commissions. Sans livraison. Jamais.',
   },
 
   // Home — For restaurants block
@@ -81,63 +124,63 @@ const strings: Record<string, Record<Lang, string>> = {
     fr: 'Rejoindre le pilote gratuit →',
   },
 
-  // Categories
-  'cat.Italian': { en: 'Pizza', fr: 'Pizza' },
-  'cat.Asian':   { en: 'Sushi', fr: 'Sushi' },
-  'cat.Burger':  { en: 'Burger', fr: 'Burger' },
-  'cat.Kebab':   { en: 'Kebab', fr: 'Kebab' },
-  'cat.Indian':  { en: 'Indian', fr: 'Indien' },
-  'cat.Local':   { en: 'Local', fr: 'Local' },
-  'cat.Healthy': { en: 'Healthy', fr: 'Healthy' },
-  'cat.Other':   { en: 'Other', fr: 'Autre' },
-
   // Results
   'results.title': {
-    en: 'Top 3 picks for you',
-    fr: 'Les 3 meilleures suggestions',
+    en: 'Your 3 picks',
+    fr: 'Vos 3 options',
   },
   'results.subtitle': {
-    en: "We've selected the best options based on speed, price and local reviews.",
-    fr: "Nous avons sélectionné les meilleures options selon la rapidité, le prix et les avis locaux.",
+    en: 'The best local options based on your selection.',
+    fr: 'Les meilleures options locales selon votre sélection.',
   },
   'results.changePicks': {
-    en: '↻ Change my picks',
-    fr: '↻ Changer mes suggestions',
+    en: '↻ Show different picks',
+    fr: '↻ Afficher d\'autres options',
   },
   'results.noAds': {
-    en: 'These picks are not ads. We show you the best local options.',
-    fr: "Ces suggestions ne sont pas des publicités. Nous vous montrons les meilleures options locales.",
+    en: 'These picks are not ads. We show you the best local options based on data, not commissions.',
+    fr: 'Ces suggestions ne sont pas des publicités. Nous vous montrons les meilleures options locales basées sur les données, pas sur les commissions.',
   },
   'results.empty': {
-    en: 'No restaurants found in this category yet.',
-    fr: "Aucun restaurant trouvé dans cette catégorie pour l'instant.",
+    en: 'No places found nearby',
+    fr: 'Aucun endroit trouvé',
+  },
+  'results.emptyHint': {
+    en: 'Try a different option or city',
+    fr: 'Essayez une autre option ou ville',
+  },
+  'results.showAll': {
+    en: 'Show all restaurants →',
+    fr: 'Voir tous les restaurants →',
   },
   'results.back': { en: '← Back', fr: '← Retour' },
 
-  // Restaurant card / detail
-  'restaurant.delivery':    { en: 'Delivery', fr: 'Livraison' },
-  'restaurant.pickup':      { en: 'Pickup', fr: 'À emporter' },
-  'restaurant.ordering':    { en: '📞 Phone', fr: '📞 Téléphone' },
-  'restaurant.bestFor':     { en: 'Best for:', fr: 'Idéal pour :' },
-  'restaurant.viewDetail':  { en: '📞 Order now →', fr: '📞 Commander →' },
-  // Smart CTA labels
-  'restaurant.order':       { en: '🛒 Order online', fr: '🛒 Commander en ligne' },
-  'restaurant.callToOrder': { en: '📞 Call to order', fr: '📞 Appeler pour commander' },
-  'restaurant.call':        { en: '📞 Call', fr: '📞 Appeler' },
-  'restaurant.website':     { en: '📋 Restaurant menu', fr: '📋 Menu du restaurant' },
-  'restaurant.minOrder':    { en: 'Min. order', fr: 'Commande min.' },
-  'restaurant.deliveryFee': { en: 'Delivery fee', fr: 'Frais de livraison' },
+  // Restaurant card
+  'card.verified':   { en: 'Verified', fr: 'Vérifié' },
+  'card.bestNearby': { en: 'Best nearby option', fr: 'Meilleure option proche' },
+  'card.call':       { en: 'Call', fr: 'Appeler' },
+  'card.route':      { en: 'Route', fr: 'Itinéraire' },
+  'card.menu':       { en: 'Menu', fr: 'Menu' },
+  'card.saved':      { en: 'Saved', fr: 'Enregistré' },
+
+  // Restaurant detail
+  'restaurant.call':     { en: '📞 Call', fr: '📞 Appeler' },
+  'restaurant.route':    { en: '🗺 Route', fr: '🗺 Itinéraire' },
+  'restaurant.menu':     { en: '🔗 Menu', fr: '🔗 Menu' },
   'restaurant.notAvailable': { en: 'Contact for details', fr: 'Contacter pour les détails' },
   'restaurant.legalNote': {
-    en: 'BonApp does not deliver food.\nYou order directly from the restaurant.',
-    fr: "BonApp ne livre pas de nourriture.\nVous commandez directement auprès du restaurant.",
+    en: 'BonApp does not deliver food.\nYou contact the restaurant directly.',
+    fr: 'BonApp ne livre pas de nourriture.\nVous contactez le restaurant directement.',
   },
-  
-  // Perks & Hook
-  'restaurant.hook': { en: '🔥 No fees — direct to restaurant', fr: '🔥 Sans frais — direct au restaurant' },
-  'restaurant.perkPhone': { en: 'Phone orders accepted', fr: 'Commandes par téléphone' },
-  'restaurant.perkReady': { en: 'Ready in 10-15 mins', fr: 'Prêt en 10-15 min' },
-  'restaurant.perkPay': { en: 'Pay at restaurant', fr: 'Paiement au restaurant' },
+  'restaurant.address':  { en: 'Address', fr: 'Adresse' },
+  'restaurant.hours':    { en: 'Hours', fr: 'Horaires' },
+  'restaurant.notes':    { en: 'About', fr: 'À propos' },
+  'restaurant.viewDetail': { en: 'See details →', fr: 'Voir les détails →' },
+
+  // Price range labels
+  'price.1': { en: '€ Budget',  fr: '€ Budget' },
+  'price.2': { en: '€€ Mid',    fr: '€€ Moyen' },
+  'price.3': { en: '€€€ Premium', fr: '€€€ Premium' },
 
   // Footer
   'footer.terms':    { en: 'Terms of Service', fr: "Conditions d'utilisation" },
@@ -145,6 +188,10 @@ const strings: Record<string, Record<Lang, string>> = {
   'footer.notice':   { en: 'Legal Notice', fr: 'Mentions légales' },
   'footer.partner':  { en: 'Partner Terms', fr: 'Conditions partenaires' },
   'footer.copy':     { en: '© 2025 BonApp Luxembourg', fr: '© 2025 BonApp Luxembourg' },
+  'footer.disclaimer': {
+    en: 'BonApp does not deliver food. You contact the restaurant directly.',
+    fr: 'BonApp ne livre pas de nourriture. Vous contactez le restaurant directement.',
+  },
 
   // Errors
   'error.loading':  { en: 'Failed to load. Please try again.', fr: 'Échec du chargement. Veuillez réessayer.' },

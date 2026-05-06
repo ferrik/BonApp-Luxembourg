@@ -45,6 +45,23 @@
            hover:shadow-xl hover:shadow-black/40;
   }
 
+  /* Scenario chip — default state */
+  .scenario-chip {
+    @apply flex flex-col items-center justify-center gap-1.5
+           rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-100
+           cursor-pointer transition-all duration-200 font-medium text-sm
+           active:scale-95;
+    min-height: 80px;
+    padding: 12px 8px;
+  }
+
+  /* Scenario chip — selected */
+  .scenario-chip-selected {
+    @apply scenario-chip border-brand-500 text-brand-400;
+    background-color: rgb(249 115 22 / 0.1);
+  }
+
+  /* Legacy category chip kept for compatibility */
   .category-chip {
     @apply flex flex-col items-center justify-center gap-2 p-4 rounded-2xl
            bg-zinc-900 border border-zinc-800 text-zinc-100
@@ -68,4 +85,53 @@
   .badge-zinc {
     @apply badge bg-zinc-700 text-zinc-300;
   }
+
+  .badge-verified {
+    @apply badge bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
+  }
+}
+
+/* Shimmer animation for skeleton loading */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #27272a 25%,
+    #3f3f46 50%,
+    #27272a 75%
+  );
+  background-size: 200% auto;
+  animation: shimmer 1.5s linear infinite;
+  border-radius: 6px;
+}
+
+/* Bottom sheet overlay */
+.bottom-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bottom-sheet {
+  background: #1a1a1a;
+  border-top: 1px solid #3f3f46;
+  border-radius: 20px 20px 0 0;
+  padding: 24px 20px 32px;
+  width: 100%;
+  max-width: 480px;
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }

@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Disclaimer */}
         <p className="text-center text-xs text-zinc-500 mb-6 leading-relaxed">
-          {t('home.disclaimer', lang)}
+          {t('footer.disclaimer', lang)}
         </p>
 
         {/* Legal links */}
