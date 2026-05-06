@@ -52,6 +52,7 @@ const LABELS = {
     contactPhone: 'Phone',
     contactEmail: 'Email *',
     websiteUrl: 'Website',
+    imageUrl: 'Image URL (link to a photo)',
     orderingUrl: 'Online ordering link',
     menuUrl: 'Menu link (website / PDF / Google Drive)',
     offersDelivery: 'We offer delivery',
@@ -93,6 +94,7 @@ const LABELS = {
     contactPhone: 'Téléphone',
     contactEmail: 'Email *',
     websiteUrl: 'Site web',
+    imageUrl: 'URL de l\'image (lien vers la photo)',
     orderingUrl: 'Lien de commande en ligne',
     menuUrl: 'Lien du menu (site / PDF / Google Drive)',
     offersDelivery: 'Nous proposons la livraison',
@@ -155,6 +157,7 @@ export default function PartnersPage() {
   const [contactPhone, setContactPhone]     = useState('')
   const [contactEmail, setContactEmail]     = useState('')
   const [websiteUrl, setWebsiteUrl]         = useState('')
+  const [imageUrl, setImageUrl]             = useState('')
   const [orderingUrl, setOrderingUrl]       = useState('')
   const [menuUrl, setMenuUrl]               = useState('')
   const [offersDelivery, setOffersDelivery] = useState(false)
@@ -189,6 +192,7 @@ export default function PartnersPage() {
       contact_phone:   contactPhone || undefined,
       contact_email:   contactEmail.trim(),
       website_url:     websiteUrl || undefined,
+      image_url:       imageUrl || undefined,
       ordering_url:    orderingUrl || undefined,
       menu_url:        menuUrl || undefined,
       offers_delivery: offersDelivery,
@@ -377,6 +381,17 @@ export default function PartnersPage() {
             type="url"
             value={websiteUrl}
             onChange={(e) => setWebsiteUrl(e.target.value)}
+            className={inputCls}
+            placeholder="https://"
+          />
+        </Field>
+
+        <Field label={L.imageUrl}>
+          <input
+            id="field-image-url"
+            type="url"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
             className={inputCls}
             placeholder="https://"
           />

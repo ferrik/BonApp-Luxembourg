@@ -190,7 +190,7 @@ router.post('/', async (req: Request, res: Response) => {
       min_order_eur, delivery_fee_eur, delivery_zone_notes,
       source_name, source_url, verification_status,
       partner_status, billing_enabled, pricing_plan, notes,
-      image_url, image_source, image_status, vibe, seating, parking,
+      image_url, pexels_url, image_source, image_status, vibe, seating, parking,
       scenario, lat, lng, price_range, group_size_max, hours, verified,
     } = req.body
 
@@ -207,13 +207,13 @@ router.post('/', async (req: Request, res: Response) => {
         min_order_eur, delivery_fee_eur, delivery_zone_notes,
         source_name, source_url, verification_status,
         partner_status, billing_enabled, pricing_plan, notes,
-        image_url, image_source, image_status, vibe, seating, parking,
+        image_url, pexels_url, image_source, image_status, vibe, seating, parking,
         scenario, lat, lng, price_range, group_size_max, hours, verified
       ) VALUES (
         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
         $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
         $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,
-        $31,$32,$33,$34,$35,$36,$37
+        $31,$32,$33,$34,$35,$36,$37,$38
       ) RETURNING *`,
       [
         name, city ?? null, commune ?? null, cluster ?? null, address ?? null, phone ?? null,
@@ -222,7 +222,7 @@ router.post('/', async (req: Request, res: Response) => {
         min_order_eur ?? null, delivery_fee_eur ?? null, delivery_zone_notes ?? null,
         source_name ?? null, source_url ?? null, verification_status ?? 'pending',
         partner_status ?? 'new', billing_enabled ?? false, pricing_plan ?? 'free', notes ?? null,
-        image_url ?? null, image_source ?? 'placeholder', image_status ?? 'missing',
+        image_url ?? null, pexels_url ?? null, image_source ?? 'placeholder', image_status ?? 'missing',
         vibe ?? null, seating ?? null, parking ?? false,
         scenario ?? null, lat ?? null, lng ?? null,
         price_range ?? 2, group_size_max ?? 10, hours ?? null, verified ?? false,
@@ -254,7 +254,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
       'source_name','source_url','verification_status',
       'partner_status','billing_enabled','pricing_plan','notes','opening_hours',
       // v3 fields
-      'image_url','image_source','image_status','vibe','seating','parking',
+      'image_url','pexels_url','image_source','image_status','vibe','seating','parking',
       'scenario','lat','lng','price_range','group_size_max','hours','verified',
     ]
 

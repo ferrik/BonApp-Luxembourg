@@ -88,6 +88,7 @@ export interface PartnerApplicationPayload {
   website_url?: string
   ordering_url?: string
   menu_url?: string
+  image_url?: string
 
   offers_delivery: boolean
   offers_pickup: boolean

@@ -65,6 +65,8 @@ interface EditState {
   partner_status: string
   notes: string
   website_url: string
+  image_url: string
+  pexels_url: string
   delivery_url: string
   direct_ordering: boolean
   opening_hours: string
@@ -155,6 +157,8 @@ export default function AdminPage() {
           partner_status: r.partner_status,
           notes: r.notes ?? '',
           website_url: r.website_url ?? '',
+          image_url: r.image_url ?? '',
+          pexels_url: r.pexels_url ?? '',
           delivery_url: r.delivery_url ?? '',
           direct_ordering: r.direct_ordering ?? false,
           opening_hours: r.opening_hours ?? '',
@@ -214,6 +218,8 @@ export default function AdminPage() {
           partner_status: body.partner_status,
           notes: body.notes || null,
           website_url: body.website_url || null,
+          image_url: body.image_url || null,
+          pexels_url: body.pexels_url || null,
           delivery_url: body.delivery_url || null,
           direct_ordering: body.direct_ordering,
           opening_hours: body.opening_hours || null,
@@ -242,6 +248,7 @@ export default function AdminPage() {
           address: app.address ?? null,
           phone: app.contact_phone ?? null,
           website_url: app.website_url ?? null,
+          image_url: app.image_url ?? null,
           delivery_url: app.ordering_url ?? null,
           cuisine_primary: app.cuisine_type ?? 'Other',
           own_delivery: app.offers_delivery ?? false,
@@ -324,6 +331,8 @@ export default function AdminPage() {
       e.phone !== (r.phone ?? '') ||
       e.cuisine_primary !== (r.cuisine_primary ?? '') ||
       e.website_url !== (r.website_url ?? '') ||
+      e.image_url !== (r.image_url ?? '') ||
+      e.pexels_url !== (r.pexels_url ?? '') ||
       e.delivery_url !== (r.delivery_url ?? '') ||
       e.direct_ordering !== (r.direct_ordering ?? false) ||
       e.verification_status !== r.verification_status ||
@@ -620,13 +629,31 @@ export default function AdminPage() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-zinc-950 p-3 rounded-lg text-xs">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 bg-zinc-950 p-3 rounded-lg text-xs">
                       <div>
                         <span className="block text-zinc-500 mb-0.5">Сайт (URL)</span>
                         <input
                           type="text"
                           value={e?.website_url ?? r.website_url ?? ''}
                           onChange={(ev) => updateEdit(r.id, 'website_url', ev.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-500"
+                        />
+                      </div>
+                      <div>
+                        <span className="block text-zinc-500 mb-0.5">Image URL</span>
+                        <input
+                          type="text"
+                          value={e?.image_url ?? r.image_url ?? ''}
+                          onChange={(ev) => updateEdit(r.id, 'image_url', ev.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-500"
+                        />
+                      </div>
+                      <div>
+                        <span className="block text-zinc-500 mb-0.5">Pexels URL</span>
+                        <input
+                          type="text"
+                          value={e?.pexels_url ?? r.pexels_url ?? ''}
+                          onChange={(ev) => updateEdit(r.id, 'pexels_url', ev.target.value)}
                           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-500"
                         />
                       </div>
@@ -871,6 +898,10 @@ export default function AdminPage() {
                       <div>
                         <span className="block text-zinc-500 mb-0.5">URL меню</span>
                         {app.menu_url ? <a href={app.menu_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
+                      </div>
+                      <div>
+                        <span className="block text-zinc-500 mb-0.5">Image URL</span>
+                        {app.image_url ? <a href={app.image_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">URL замовлення</span>
