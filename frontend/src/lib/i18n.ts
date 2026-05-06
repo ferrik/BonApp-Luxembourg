@@ -5,6 +5,10 @@ type Lang = 'en' | 'fr'
 
 const strings: Record<string, Record<Lang, string>> = {
   // Nav
+  'nav.home': { en: 'Home', fr: 'Accueil' },
+  'nav.howItWorks': { en: 'How it works', fr: 'Comment ça marche' },
+  'nav.forRestaurants': { en: 'For restaurants', fr: 'Pour les restaurants' },
+  'nav.about': { en: 'About us', fr: 'À propos' },
   'nav.tagline': {
     en: 'Where to eat in Luxembourg — decided in seconds.',
     fr: 'Où manger au Luxembourg — décidé en secondes.',
@@ -12,20 +16,28 @@ const strings: Record<string, Record<Lang, string>> = {
 
   // Home — hero
   'home.tagline': {
-    en: 'Where to eat in Luxembourg — decided in seconds.',
-    fr: 'Où manger au Luxembourg — décidé en secondes.',
+    en: 'Find where to eat in Luxembourg',
+    fr: 'Trouvez où manger au Luxembourg',
   },
   'home.subtitle': {
-    en: 'No endless scrolling. 3 real picks. Direct contact.',
-    fr: 'Pas de scroll infini. 3 vraies options. Contact direct.',
+    en: 'Get 3 best options in seconds.',
+    fr: 'Obtenez les 3 meilleures options en quelques secondes.',
   },
   'home.pickForMe': {
     en: 'Pick for me',
     fr: 'Choisir pour moi',
   },
   'home.orChoose': {
-    en: 'Or choose your vibe',
-    fr: 'Ou choisissez votre envie',
+    en: 'WHAT DO YOU WANT NOW?',
+    fr: 'QUE VOULEZ-VOUS MAINTENANT ?',
+  },
+  'home.noDeliveryTitle': {
+    en: 'No delivery.',
+    fr: 'Pas de livraison.',
+  },
+  'home.noDeliveryBody': {
+    en: 'Order directly from the restaurant.',
+    fr: 'Commandez directement auprès du restaurant.',
   },
   'home.cityLabel': {
     en: '📍 Anywhere in Luxembourg',
@@ -123,6 +135,18 @@ const strings: Record<string, Record<Lang, string>> = {
     en: 'Join free pilot →',
     fr: 'Rejoindre le pilote gratuit →',
   },
+  'forRestaurants.feat1': {
+    en: 'Customers find you easily',
+    fr: 'Les clients vous trouvent facilement',
+  },
+  'forRestaurants.feat2': {
+    en: 'They call or visit directly',
+    fr: 'Ils appellent ou visitent directement',
+  },
+  'forRestaurants.feat3': {
+    en: 'No commissions on orders',
+    fr: 'Aucune commission sur les commandes',
+  },
 
   // Results
   'results.title': {
@@ -183,6 +207,15 @@ const strings: Record<string, Record<Lang, string>> = {
   'price.3': { en: '€€€ Premium', fr: '€€€ Premium' },
 
   // Footer
+  'footer.feat1.title': { en: 'Smart selection', fr: 'Sélection intelligente' },
+  'footer.feat1.desc': { en: 'Only the best options', fr: 'Uniquement les meilleures options' },
+  'footer.feat2.title': { en: 'Direct contact', fr: 'Contact direct' },
+  'footer.feat2.desc': { en: 'Call or visit directly', fr: 'Appelez ou visitez directement' },
+  'footer.feat3.title': { en: 'No commission', fr: 'Sans commission' },
+  'footer.feat3.desc': { en: '100% for restaurants', fr: '100% pour les restaurants' },
+  'footer.feat4.title': { en: 'Local service', fr: 'Service local' },
+  'footer.feat4.desc': { en: 'Made in Luxembourg', fr: 'Fait au Luxembourg' },
+  
   'footer.terms':    { en: 'Terms of Service', fr: "Conditions d'utilisation" },
   'footer.privacy':  { en: 'Privacy Policy', fr: 'Politique de confidentialité' },
   'footer.notice':   { en: 'Legal Notice', fr: 'Mentions légales' },
