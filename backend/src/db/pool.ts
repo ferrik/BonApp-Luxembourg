@@ -10,8 +10,11 @@ if (!DATABASE_URL) {
   process.exit(1)
 }
 
-// Enable SSL for Render / cloud-hosted PostgreSQL
-const useSSL = DATABASE_URL.includes('sslmode=require') || DATABASE_URL.includes('render.com')
+// Enable SSL for Render / Supabase / cloud-hosted PostgreSQL
+const useSSL = DATABASE_URL.includes('sslmode=require') || 
+               DATABASE_URL.includes('render.com') || 
+               DATABASE_URL.includes('supabase.co') || 
+               DATABASE_URL.includes('supabase.com')
 
 export const pool = new Pool({
   connectionString: DATABASE_URL,
