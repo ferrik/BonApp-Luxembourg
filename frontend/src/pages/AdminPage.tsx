@@ -64,9 +64,10 @@ interface EditState {
   partner_status: string
   notes: string
   website_url: string
-  image_url: string
   pexels_url: string
   delivery_url: string
+  logo_url: string
+  gallery_urls: string // Store as comma-separated string in the edit state for easy editing
   direct_ordering: boolean
   opening_hours: string
 }
@@ -162,6 +163,8 @@ export default function AdminPage() {
           notes: r.notes ?? '',
           website_url: r.website_url ?? '',
           image_url: r.image_url ?? '',
+          logo_url: r.logo_url ?? '',
+          gallery_urls: (r.gallery_urls || []).join(', '),
           pexels_url: r.pexels_url ?? '',
           delivery_url: r.delivery_url ?? '',
           direct_ordering: r.direct_ordering ?? false,
@@ -223,6 +226,8 @@ export default function AdminPage() {
           notes: body.notes || null,
           website_url: body.website_url || null,
           image_url: body.image_url || null,
+          logo_url: body.logo_url || null,
+          gallery_urls: body.gallery_urls ? body.gallery_urls.split(',').map(s => s.trim()).filter(Boolean) : null,
           pexels_url: body.pexels_url || null,
           delivery_url: body.delivery_url || null,
           direct_ordering: body.direct_ordering,
@@ -336,6 +341,8 @@ export default function AdminPage() {
       e.cuisine_primary !== (r.cuisine_primary ?? '') ||
       e.website_url !== (r.website_url ?? '') ||
       e.image_url !== (r.image_url ?? '') ||
+      e.logo_url !== (r.logo_url ?? '') ||
+      e.gallery_urls !== (r.gallery_urls || []).join(', ') ||
       e.pexels_url !== (r.pexels_url ?? '') ||
       e.delivery_url !== (r.delivery_url ?? '') ||
       e.direct_ordering !== (r.direct_ordering ?? false) ||
@@ -662,11 +669,21 @@ export default function AdminPage() {
                         />
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Фото Pexels</span>
+                        <span className="block text-zinc-500 mb-0.5">Логотип (URL)</span>
                         <input
                           type="text"
-                          value={e?.pexels_url ?? r.pexels_url ?? ''}
-                          onChange={(ev) => updateEdit(r.id, 'pexels_url', ev.target.value)}
+                          value={e?.logo_url ?? r.logo_url ?? ''}
+                          onChange={(ev) => updateEdit(r.id, 'logo_url', ev.target.value)}
+                          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-500"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <span className="block text-zinc-500 mb-0.5">Галерея фото (через кому)</span>
+                        <input
+                          type="text"
+                          value={e?.gallery_urls ?? ''}
+                          onChange={(ev) => updateEdit(r.id, 'gallery_urls', ev.target.value)}
+                          placeholder="URL1, URL2, URL3..."
                           className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-brand-500"
                         />
                       </div>

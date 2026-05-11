@@ -24,7 +24,8 @@ function computeScore(
 ): number {
   let score = 0
   if (row.verified === true) score += 2
-  if (row.image_url || row.pexels_url) score += 3
+  if (row.image_url || row.pexels_url || row.logo_url) score += 3
+  if (Array.isArray(row.gallery_urls) && row.gallery_urls.length > 0) score += 2
   if (row.phone) score += 2
   if (row.website_url) score += 1
   if (scenario && Array.isArray(row.scenario) && (row.scenario as string[]).includes(scenario)) score += 2
@@ -174,6 +175,7 @@ router.post('/', async (req: Request, res: Response) => {
       partner_status, billing_enabled, pricing_plan, notes,
       image_url, pexels_url, image_source, image_status, vibe, seating, parking,
       scenario, lat, lng, price_range, group_size_max, hours, verified, opening_hours,
+      logo_url, gallery_urls,
     } = req.body
 
     if (!name) {
@@ -190,12 +192,13 @@ router.post('/', async (req: Request, res: Response) => {
         source_name, source_url, verification_status,
         partner_status, billing_enabled, pricing_plan, notes,
         image_url, pexels_url, image_source, image_status, vibe, seating, parking,
-        scenario, lat, lng, price_range, group_size_max, hours, verified, opening_hours
+        scenario, lat, lng, price_range, group_size_max, hours, verified, opening_hours,
+        logo_url, gallery_urls
       ) VALUES (
         $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
         $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
         $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,
-        $31,$32,$33,$34,$35,$36,$37,$38,$39
+        $31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41
       ) RETURNING *`,
       [
         name, city ?? null, commune ?? null, cluster ?? null, address ?? null, phone ?? null,
@@ -208,6 +211,7 @@ router.post('/', async (req: Request, res: Response) => {
         vibe ?? null, seating ?? null, parking ?? false,
         scenario ?? null, lat ?? null, lng ?? null,
         price_range ?? 2, group_size_max ?? 10, hours ?? null, verified ?? false, opening_hours ?? null,
+        logo_url ?? null, gallery_urls ?? null,
       ]
     )
 
@@ -237,6 +241,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
       'partner_status','billing_enabled','pricing_plan','notes','opening_hours',
       'image_url','pexels_url','image_source','image_status','vibe','seating','parking',
       'scenario','lat','lng','price_range','group_size_max','hours','verified','open_now',
+      'logo_url','gallery_urls',
     ]
 
     const updates: string[] = []
