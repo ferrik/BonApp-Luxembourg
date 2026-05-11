@@ -8,35 +8,35 @@ const VERIFICATION_OPTIONS = ['pending', 'verified', 'inferred', 'unverified', '
 const PARTNER_OPTIONS = ['new', 'contacted', 'interested', 'follow_up', 'trial', 'active', 'premium', 'paused', 'onboarded', 'rejected']
 
 const VERIFICATION_LABELS: Record<string, string> = {
-  pending: 'pending (waart)',
-  verified: 'verified (verifizéiert)',
-  inferred: 'inferred (virausgesot)',
-  unverified: 'unverified (net verifizéiert)',
-  needs_verification: 'needs_verification (brauch Verifikatioun)'
+  pending: 'Очікує',
+  verified: 'Підтверджено',
+  inferred: 'Автоматично',
+  unverified: 'Не підтверджено',
+  needs_verification: 'Потребує перевірки'
 }
 
 const PARTNER_LABELS: Record<string, string> = {
-  new: 'new (nei)',
-  contacted: 'contacted (kontaktéiert)',
-  interested: 'interested (interesséiert)',
-  follow_up: 'follow_up (follow-up)',
-  trial: 'trial (trial)',
-  active: 'active (aktiv)',
-  premium: 'premium (premium)',
-  paused: 'paused (pauséiert)',
-  onboarded: 'onboarded (onboarded)',
-  rejected: 'rejected (ofgeleent)'
+  new: 'Новий',
+  contacted: 'На зв\'язку',
+  interested: 'Цікавиться',
+  follow_up: 'Нагадати',
+  trial: 'Тестовий (Trial)',
+  active: 'Активний',
+  premium: 'Преміум',
+  paused: 'Пауза',
+  onboarded: 'Доданий',
+  rejected: 'Відхилено'
 }
 
 const CUISINE_LABELS: Record<string, string> = {
-  Italian: 'Italian (Italienesch)',
-  Asian: 'Asian (Asiatesch)',
-  Burger: 'Burger (Burger)',
-  Kebab: 'Kebab (Kebab)',
-  Local: 'Local (Lokal)',
-  Healthy: 'Healthy (Gesond)',
-  Indian: 'Indian (Indesch)',
-  Other: 'Other (Aneres)'
+  Italian: 'Італійська',
+  Asian: 'Азійська',
+  Burger: 'Бургери',
+  Kebab: 'Кебаб',
+  Local: 'Місцева',
+  Healthy: 'Здорова',
+  Indian: 'Індійська',
+  Other: 'Інше'
 }
 
 const getVerStatusColor = (val: string) => {
@@ -395,12 +395,12 @@ export default function AdminPage() {
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 flex flex-col sm:flex-row gap-3 sm:items-center">
         <input
           type="password"
-          placeholder="Admin token"
+          placeholder="Токен доступу"
           value={adminToken}
           onChange={(e) => setAdminToken(e.target.value)}
           className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-brand-500 max-w-sm w-full"
         />
-        <span className="text-xs text-zinc-500">Required for restaurant edits, applications, and analytics.</span>
+        <span className="text-xs text-zinc-500">Необхідно для редагування, перегляду заявок та аналітики.</span>
       </div>
       {/* Tabs */}
       <div className="flex rounded-xl border border-zinc-800 overflow-hidden mb-6">
@@ -448,7 +448,7 @@ export default function AdminPage() {
                   <p className="text-sm text-zinc-500 mt-2">Всього кліків CTA</p>
                 </div>
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                  <h3 className="text-sm font-bold text-white mb-3">За типом події (переходи)</h3>
+                  <h3 className="text-sm font-bold text-white mb-3">За типом дії</h3>
                   <div className="space-y-2">
                     {analytics.by_event_type?.map((t: any) => (
                       <div key={t.event_type} className="flex justify-between text-sm">
@@ -538,7 +538,7 @@ export default function AdminPage() {
               </div>
             </>
           ) : (
-            <p className="text-zinc-500 text-sm">Не вдалося завантажити аналітику.</p>
+            <p className="text-zinc-500 text-sm">Аналітика поки що порожня.</p>
           )}
         </div>
       )}
@@ -653,7 +653,7 @@ export default function AdminPage() {
                         />
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Image URL</span>
+                        <span className="block text-zinc-500 mb-0.5">Фото ресторану</span>
                         <input
                           type="text"
                           value={e?.image_url ?? r.image_url ?? ''}
@@ -662,7 +662,7 @@ export default function AdminPage() {
                         />
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Pexels URL</span>
+                        <span className="block text-zinc-500 mb-0.5">Фото Pexels</span>
                         <input
                           type="text"
                           value={e?.pexels_url ?? r.pexels_url ?? ''}
@@ -825,16 +825,16 @@ export default function AdminPage() {
           <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 flex gap-3 items-center">
             <input
               type="password"
-              placeholder="Токен адміністратора"
+              placeholder="Токен доступу"
               value={adminToken}
               onChange={(e) => setAdminToken(e.target.value)}
               className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-brand-500 max-w-sm w-full"
             />
-            <span className="text-xs text-zinc-500">Потрібен для перегляду та редагування заявок</span>
+            <span className="text-xs text-zinc-500">Необхідно для перегляду та редагування заявок</span>
           </div>
 
           {!adminToken ? (
-            <p className="text-zinc-500 text-sm text-center py-12">Введіть Токен адміністратора для перегляду заявок.</p>
+            <p className="text-zinc-500 text-sm text-center py-12">Введіть Токен доступу для перегляду заявок.</p>
           ) : appLoading ? (
             <div className="space-y-3">
               {[1,2].map((i) => <div key={i} className="h-32 bg-zinc-900 rounded-xl animate-pulse" />)}
@@ -857,7 +857,7 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-bold text-white text-lg">{app.restaurant_name}</span>
                           <span className={`badge ${app.status === 'pending' ? 'badge-orange' : app.status === 'active' ? 'badge-green' : 'badge-zinc'}`}>
-                            {app.status}
+                            {app.status === 'pending' ? 'Очікує' : app.status === 'active' ? 'Активна' : 'Відхилена'}
                           </span>
                           {app.application_type === 'update' && <span className="badge badge-zinc">Запит на оновлення</span>}
                         </div>
@@ -913,8 +913,8 @@ export default function AdminPage() {
                         {app.menu_url ? <a href={app.menu_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
-                        <span className="block text-zinc-500 mb-0.5">Image URL</span>
-                        {app.image_url ? <a href={app.image_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Посилання</a> : <span className="text-zinc-600">—</span>}
+                        <span className="block text-zinc-500 mb-0.5">Фото ресторану</span>
+                        {app.image_url ? <a href={app.image_url} target="_blank" rel="noreferrer" className="text-brand-400 hover:underline break-all">Переглянути</a> : <span className="text-zinc-600">—</span>}
                       </div>
                       <div>
                         <span className="block text-zinc-500 mb-0.5">URL замовлення</span>
