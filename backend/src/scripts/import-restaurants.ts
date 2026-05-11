@@ -33,11 +33,14 @@ interface RestaurantInput {
   delivery_zone_notes?: string | null
   source_name?: string | null
   source_url?: string | null
-  verification_status?: string | null
-  partner_status?: string | null
-  billing_enabled?: boolean | null
-  pricing_plan?: string | null
-  notes?: string | null
+  vibe?: string | null
+  parking?: boolean | null
+  terrace?: boolean | null
+  lat?: number | null
+  lng?: number | null
+  price_range?: number | null
+  verified?: boolean | null
+  opening_hours?: string | null
 }
 
 const ALLOWED_VERIFICATION = ['pending', 'verified', 'inferred', 'unverified', 'needs_verification']
@@ -79,6 +82,14 @@ function normalize(row: RestaurantInput): RestaurantInput {
       ? row.pricing_plan
       : 'free',
     notes: row.notes?.trim() ?? null,
+    vibe: row.vibe?.trim() ?? null,
+    parking: row.parking ?? false,
+    terrace: row.terrace ?? false,
+    lat: row.lat ?? null,
+    lng: row.lng ?? null,
+    price_range: row.price_range ?? 2,
+    verified: row.verified ?? false,
+    opening_hours: row.opening_hours?.trim() ?? null,
   }
 }
 
@@ -144,28 +155,30 @@ async function importRestaurants(): Promise<void> {
         continue
       }
 
-      await pool.query(
-        `INSERT INTO restaurants (
-          name, city, commune, cluster, address, phone,
-          website_url, delivery_url, cuisine_primary, cuisine_secondary,
-          own_delivery, pickup, direct_ordering, third_party,
-          min_order_eur, delivery_fee_eur, delivery_zone_notes,
-          source_name, source_url, verification_status,
-          partner_status, billing_enabled, pricing_plan, notes
-        ) VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
-          $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
-          $21,$22,$23,$24
-        )`,
-        [
-          r.name, r.city, r.commune, r.cluster, r.address, r.phone,
-          r.website_url, r.delivery_url, r.cuisine_primary, r.cuisine_secondary,
-          r.own_delivery, r.pickup, r.direct_ordering, r.third_party,
-          r.min_order_eur, r.delivery_fee_eur, r.delivery_zone_notes,
-          r.source_name, r.source_url, r.verification_status,
-          r.partner_status, r.billing_enabled, r.pricing_plan, r.notes,
-        ]
-      )
+        await pool.query(
+          `INSERT INTO restaurants (
+            name, city, commune, cluster, address, phone,
+            website_url, delivery_url, cuisine_primary, cuisine_secondary,
+            own_delivery, pickup, direct_ordering, third_party,
+            min_order_eur, delivery_fee_eur, delivery_zone_notes,
+            source_name, source_url, verification_status,
+            partner_status, billing_enabled, pricing_plan, notes,
+            vibe, parking, terrace, lat, lng, price_range, verified, opening_hours
+          ) VALUES (
+            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
+            $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
+            $21,$22,$23,$24, $25,$26,$27,$28,$29,$30,$31,$32
+          )`,
+          [
+            r.name, r.city, r.commune, r.cluster, r.address, r.phone,
+            r.website_url, r.delivery_url, r.cuisine_primary, r.cuisine_secondary,
+            r.own_delivery, r.pickup, r.direct_ordering, r.third_party,
+            r.min_order_eur, r.delivery_fee_eur, r.delivery_zone_notes,
+            r.source_name, r.source_url, r.verification_status,
+            r.partner_status, r.billing_enabled, r.pricing_plan, r.notes,
+            r.vibe, r.parking, r.terrace, r.lat, r.lng, r.price_range, r.verified, r.opening_hours,
+          ]
+        )
 
       console.log(`[import] OK: ${r.name} (${r.city ?? 'no city'}) — ${r.cuisine_primary}`)
       inserted++
