@@ -142,152 +142,149 @@ export default function RestaurantPage() {
   const imageUrl = imgError ? '/images/placeholder-restaurant.jpg' : resolveImage(r)
 
   return (
-    <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
-      <button
-        id="back-btn"
-        onClick={() => navigate(-1)}
-        className="text-sm text-zinc-400 hover:text-white transition-colors mb-6 inline-flex items-center gap-1"
-      >
-        {t('results.back', lang)}
-      </button>
-
-      <div className="card relative overflow-hidden">
-
-        {/* ── IMAGE ── */}
-        <div className="relative w-full" style={{ height: '240px' }}>
-          <img
-            src={imageUrl}
-            alt={r.name}
-            onError={() => setImgError(true)}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent" />
-
-          {/* Save ♡ */}
-          <button
-            id={`save-btn-detail-${r.id}`}
-            onClick={handleSave}
-            aria-label={saved ? 'Unsave restaurant' : 'Save restaurant'}
-            className="absolute top-3 left-3 w-10 h-10 rounded-full bg-zinc-900/70 backdrop-blur-sm flex items-center justify-center text-xl hover:scale-110 transition-transform active:scale-90"
-          >
-            {saved ? '♥' : '♡'}
-          </button>
-
-          {/* Verified */}
-          {r.verified && (
-            <div className="absolute top-3 right-3">
-              <span className="badge-verified text-[11px] px-2 py-0.5">
-                ✓ {t('card.verified', lang)}
-              </span>
-            </div>
-          )}
+    <main className="flex-1 pb-20">
+      {/* ── HEADER ── */}
+      <div className="relative w-full h-[40svh] sm:h-[500px] bg-zinc-900 overflow-hidden">
+        <img
+          src={imageUrl}
+          alt={r.name}
+          onError={() => setImgError(true)}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+        
+        {/* Navigation Overlays */}
+        <div className="absolute inset-0 z-10 container pt-8 pointer-events-none">
+          <div className="flex items-center justify-between pointer-events-auto">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-12 h-12 rounded-2xl bg-zinc-950/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-zinc-950 transition-all shadow-2xl"
+            >
+              ←
+            </button>
+            <button
+              onClick={handleSave}
+              className={`w-12 h-12 rounded-2xl backdrop-blur-md border border-white/10 flex items-center justify-center text-xl transition-all shadow-2xl ${
+                saved ? 'bg-brand-500 text-white border-brand-400' : 'bg-zinc-950/60 text-white'
+              }`}
+            >
+              {saved ? '♥' : '♡'}
+            </button>
+          </div>
         </div>
 
-        <div className="p-6">
-          {/* Cuisine + city + price */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              {r.cuisine_primary && (
-                <span className="badge badge-orange">{r.cuisine_primary}</span>
-              )}
-              {r.vibe && (
-                <span className="badge badge-zinc capitalize">{r.vibe}</span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              {r.city && (
-                <span className="text-sm text-zinc-500">📍 {r.city}</span>
-              )}
-              <span className="text-sm font-bold text-brand-400">
-                {priceLabel(r.price_range ?? 2)}
-              </span>
-            </div>
+        {/* Floating Info Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 z-10 container pb-10">
+          <div className="max-w-3xl">
+             <div className="flex flex-wrap items-center gap-3 mb-4">
+                {r.verified && (
+                  <span className="bg-brand-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-wider shadow-lg shadow-brand-500/25">
+                    ✓ {t('card.verified', lang)}
+                  </span>
+                )}
+                {r.cuisine_primary && (
+                  <span className="bg-zinc-900/80 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-wider border border-white/10">
+                    {r.cuisine_primary}
+                  </span>
+                )}
+                <span className="bg-zinc-900/80 backdrop-blur-md text-brand-400 text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-wider border border-white/10">
+                  {priceLabel(r.price_range ?? 2)}
+                </span>
+             </div>
+             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-tight tracking-tight mb-4">
+                {r.name}
+             </h1>
+             {r.city && (
+               <p className="text-zinc-300 text-lg font-bold flex items-center gap-2">
+                 <span className="text-brand-500">📍</span> {r.city}
+               </p>
+             )}
           </div>
+        </div>
+      </div>
 
-          {/* Name */}
-          <h1 className="text-2xl font-extrabold text-white mb-4 leading-tight">
-            {r.name}
-          </h1>
-
-          {/* Address */}
-          {r.address && (
-            <p className="text-sm text-zinc-500 mb-2 flex items-start gap-1.5">
-              <span className="shrink-0">📍</span>
-              {r.address}
-            </p>
-          )}
-
-          {/* Opening hours */}
-          {r.opening_hours && (
-            <div className="flex items-start gap-2 mb-4">
-              <span className="text-base leading-none mt-0.5 shrink-0">🕐</span>
-              <p className="text-sm text-zinc-300 leading-relaxed">{r.opening_hours}</p>
+      {/* ── CONTENT ── */}
+      <div className="container py-12 grid lg:grid-cols-[1fr_400px] gap-16">
+        
+        {/* Left Column: Details */}
+        <div className="space-y-12">
+          {r.notes && (
+            <div>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-6">{t('restaurant.notes', lang)}</h2>
+              <p className="text-xl text-zinc-300 leading-relaxed whitespace-pre-line font-medium">
+                {r.notes}
+              </p>
             </div>
           )}
 
-          {/* Notes / description */}
-          {r.notes && (
-            <p className="text-sm text-zinc-300 mb-6 leading-relaxed whitespace-pre-line">
-              {r.notes}
-            </p>
-          )}
+          <div className="grid sm:grid-cols-2 gap-12 pt-8 border-t border-zinc-900">
+             {r.address && (
+               <div>
+                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-4">{t('restaurant.address', lang)}</h3>
+                 <p className="text-white font-bold leading-relaxed">{r.address}</p>
+               </div>
+             )}
+             {r.opening_hours && (
+               <div>
+                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-4">{t('restaurant.hours', lang)}</h3>
+                 <p className="text-zinc-300 leading-relaxed whitespace-pre-line text-sm">{r.opening_hours}</p>
+               </div>
+             )}
+          </div>
+        </div>
 
-          {/* ── SMART CTA BUTTONS ── */}
-          <div className="space-y-3 mb-6">
-            {primaryCTA && (
-              <a
-                id={`cta-primary-${r.id}`}
-                href={primaryCTA.href}
-                onClick={(e) => handleCTA(e, primaryCTA!.event, primaryCTA!.href)}
-                className="btn-primary w-full py-4 text-base text-center block rounded-xl"
-              >
-                {primaryCTA.label}
-              </a>
-            )}
+        {/* Right Column: Actions / Stickies */}
+        <div className="space-y-6">
+           <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 sticky top-32">
+              <h3 className="text-white font-black text-xl mb-8">Contact & Visit</h3>
+              
+              <div className="space-y-4">
+                {primaryCTA && (
+                  <a
+                    id={`cta-primary-${r.id}`}
+                    href={primaryCTA.href}
+                    onClick={(e) => handleCTA(e, primaryCTA!.event, primaryCTA!.href)}
+                    className="btn-pick-for-me flex items-center justify-center !max-w-none shadow-brand-500/10"
+                  >
+                    {primaryCTA.label}
+                  </a>
+                )}
 
-            {secondaryCTAs.length > 0 && (
-              <div className="flex gap-2">
                 {secondaryCTAs.map((cta) => (
                   <a
                     key={cta.event}
                     id={`cta-${cta.event.replace('click_', '')}-${r.id}`}
                     href={cta.href}
                     onClick={(e) => handleCTA(e, cta.event, cta.href)}
-                    className="btn-secondary flex-1 py-3 rounded-xl text-sm text-center"
+                    className="btn-secondary w-full py-4 rounded-2xl text-base font-bold"
                   >
                     {cta.label}
                   </a>
                 ))}
+
+                {!primaryCTA && (
+                  <p className="text-center text-zinc-500 text-sm py-4">
+                    {t('restaurant.notAvailable', lang)}
+                  </p>
+                )}
               </div>
-            )}
 
-            {!primaryCTA && (
-              <p className="text-center text-zinc-500 text-sm py-4">
-                {t('restaurant.notAvailable', lang)}
-              </p>
-            )}
-          </div>
+              <div className="mt-8 pt-8 border-t border-zinc-800/50">
+                 <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center leading-relaxed">
+                   {t('restaurant.legalNote', lang)}
+                 </p>
+              </div>
+           </div>
 
-          {/* Legal note */}
-          <div className="border border-brand-500/20 bg-brand-500/5 rounded-xl px-4 py-3">
-            <p className="text-xs text-brand-400/80 leading-relaxed whitespace-pre-line text-center">
-              {t('restaurant.legalNote', lang)}
-            </p>
-          </div>
+           <div className="text-center">
+              <Link
+                to={`/partners?type=update&name=${encodeURIComponent(r.name)}&id=${r.id}`}
+                className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-brand-400 transition-colors"
+              >
+                Update information
+              </Link>
+           </div>
         </div>
-      </div>
-
-      {/* Own this restaurant? */}
-      <div className="mt-4 text-center">
-        <p className="text-xs text-zinc-600">
-          Own this restaurant?{' '}
-          <Link
-            to={`/partners?type=update&name=${encodeURIComponent(r.name)}&id=${r.id}`}
-            className="text-brand-400 hover:underline"
-          >
-            Update information
-          </Link>
-        </p>
       </div>
     </main>
   )

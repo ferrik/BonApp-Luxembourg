@@ -95,37 +95,37 @@ export default function ResultsPage() {
   const displayed = restaurants
 
   return (
-    <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
+    <main className="flex-1 container py-12">
 
       {/* Back */}
       <button
         id="back-btn"
         onClick={() => navigate(-1)}
-        className="text-sm text-zinc-400 hover:text-white transition-colors mb-5 inline-flex items-center gap-1"
+        className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors mb-8 inline-flex items-center gap-2 group"
       >
-        {t('results.back', lang)}
+        <span className="group-hover:-translate-x-1 transition-transform">←</span> {t('results.back', lang)}
       </button>
 
       {/* Title block */}
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-extrabold text-white mb-1">
+      <div className="mb-10">
+        <h1 className="text-3xl sm:text-5xl font-black text-white mb-4 tracking-tight">
           {showSaved ? t('home.savedPlaces', lang) : t('results.title', lang)}
         </h1>
         {scenario && !showSaved && (
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="badge badge-orange">{scenarioIcon} {scenarioLabel}</span>
-            {city && <span className="badge badge-zinc">📍 {city}</span>}
-            {priceRange && <span className="badge badge-zinc">{'€'.repeat(priceRange)}</span>}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <span className="badge-orange px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider">{scenarioLabel}</span>
+            {city && <span className="badge-zinc px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider">📍 {city}</span>}
+            {priceRange && <span className="badge-zinc px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider">{'€'.repeat(priceRange)}</span>}
           </div>
         )}
         {!showSaved && (
-          <p className="text-xs text-zinc-500">{t('results.subtitle', lang)}</p>
+          <p className="text-sm text-zinc-500 max-w-xl leading-relaxed">{t('results.subtitle', lang)}</p>
         )}
       </div>
 
-      {/* ── Loading: 3 shimmer skeletons shown simultaneously ── */}
+      {/* ── Loading ── */}
       {loading && (
-        <div className="space-y-4">
+        <div className="results-grid">
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
@@ -134,19 +134,21 @@ export default function ResultsPage() {
 
       {/* ── Error ── */}
       {error && !loading && (
-        <div className="text-center py-16 text-zinc-400">{error}</div>
+        <div className="text-center py-24 bg-zinc-900/30 rounded-3xl border border-zinc-800 text-zinc-400">{error}</div>
       )}
 
       {/* ── Empty state ── */}
       {!loading && !error && displayed.length === 0 && (
-        <div className="flex flex-col items-center text-center py-16 gap-4">
-          <span className="text-5xl">🍽</span>
-          <p className="text-lg font-bold text-white">{t('results.empty', lang)}</p>
-          <p className="text-sm text-zinc-400">{t('results.emptyHint', lang)}</p>
+        <div className="flex flex-col items-center text-center py-24 bg-zinc-900/30 rounded-3xl border border-zinc-800 gap-6">
+          <span className="text-6xl">🍽</span>
+          <div>
+            <p className="text-2xl font-black text-white mb-2">{t('results.empty', lang)}</p>
+            <p className="text-zinc-400">{t('results.emptyHint', lang)}</p>
+          </div>
           <button
             id="show-all-btn"
             onClick={handleShowAll}
-            className="btn-primary py-3 px-6 rounded-xl text-sm"
+            className="btn-primary py-4 px-8 rounded-2xl text-base font-bold"
           >
             {t('results.showAll', lang)}
           </button>
@@ -156,7 +158,7 @@ export default function ResultsPage() {
       {/* ── Cards ── */}
       {!loading && !error && displayed.length > 0 && (
         <>
-          <div className="space-y-4 mb-5">
+          <div className="results-grid mb-12">
             {displayed.map((r, i) => (
               <RestaurantCard
                 key={r.id}
@@ -167,26 +169,29 @@ export default function ResultsPage() {
             ))}
           </div>
 
-          {/* Change picks */}
-          {!showSaved && (
-            <button
-              id="btn-change-picks"
-              onClick={loadPicks}
-              className="w-full btn-secondary py-3 text-sm rounded-2xl mb-6"
-            >
-              {t('results.changePicks', lang)}
-            </button>
-          )}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pt-12 border-t border-zinc-900">
+            {/* Change picks */}
+            {!showSaved && (
+              <button
+                id="btn-change-picks"
+                onClick={loadPicks}
+                className="w-full sm:w-auto btn-secondary px-8 py-4 rounded-2xl text-sm font-bold"
+              >
+                {t('results.changePicks', lang)}
+              </button>
+            )}
 
-          {/* No-ads disclaimer */}
-          <div className="flex items-start gap-3 bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
-            <span className="text-lg shrink-0">💡</span>
-            <p className="text-xs text-zinc-500 leading-relaxed">
-              {t('results.noAds', lang)}
-            </p>
+            {/* No-ads disclaimer */}
+            <div className="flex items-start gap-4 max-w-md opacity-40">
+              <span className="text-xl shrink-0">💡</span>
+              <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider leading-relaxed">
+                {t('results.noAds', lang)}
+              </p>
+            </div>
           </div>
         </>
       )}
     </main>
   )
 }
+

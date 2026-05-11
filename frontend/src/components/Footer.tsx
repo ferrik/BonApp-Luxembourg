@@ -6,69 +6,52 @@ export default function Footer() {
   const { lang } = useLang()
 
   return (
-    <footer className="mt-auto border-t border-zinc-800 bg-zinc-950">
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        
-        {/* Footer Features (4 cols) */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 border-b border-zinc-800 pb-12">
-          <div className="flex items-start gap-4">
-            <span className="w-10 h-10 rounded-full bg-brand-500/20 text-brand-500 flex items-center justify-center text-xl shrink-0">🎯</span>
-            <div>
-              <p className="text-white font-bold text-sm mb-1">{t('footer.feat1.title', lang)}</p>
-              <p className="text-zinc-500 text-xs">{t('footer.feat1.desc', lang)}</p>
+    <footer className="mt-auto border-t border-zinc-900 bg-zinc-950 pb-12">
+      <div className="container py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 mb-16">
+          <div className="max-w-xs">
+            <div className="flex items-center gap-2 mb-6 opacity-80">
+              <span className="text-3xl">🍽️</span>
+              <span className="font-black text-2xl tracking-tighter text-white">BonApp</span>
             </div>
+            <p className="text-sm text-zinc-500 leading-relaxed">
+              {t('nav.tagline', lang)}
+            </p>
           </div>
-          <div className="flex items-start gap-4">
-            <span className="w-10 h-10 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center text-xl shrink-0">📞</span>
-            <div>
-              <p className="text-white font-bold text-sm mb-1">{t('footer.feat2.title', lang)}</p>
-              <p className="text-zinc-500 text-xs">{t('footer.feat2.desc', lang)}</p>
-            </div>
+
+          <div>
+             <h4 className="text-white font-black uppercase tracking-widest text-[10px] mb-6">{t('nav.home', lang)}</h4>
+             <ul className="space-y-4">
+               <li><Link to="/" className="text-sm text-zinc-400 hover:text-brand-400 transition-colors">{t('nav.home', lang)}</Link></li>
+               <li><a href="/#trending" className="text-sm text-zinc-400 hover:text-brand-400 transition-colors">{t('home.trending', lang)}</a></li>
+               <li><Link to="/partners" className="text-sm text-zinc-400 hover:text-brand-400 transition-colors">{t('nav.forRestaurants', lang)}</Link></li>
+             </ul>
           </div>
-          <div className="flex items-start gap-4">
-            <span className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center text-xl shrink-0">💰</span>
-            <div>
-              <p className="text-white font-bold text-sm mb-1">{t('footer.feat3.title', lang)}</p>
-              <p className="text-zinc-500 text-xs">{t('footer.feat3.desc', lang)}</p>
-            </div>
+
+          <div>
+             <h4 className="text-white font-black uppercase tracking-widest text-[10px] mb-6">Legal</h4>
+             <ul className="space-y-4">
+               <li><Link to="/legal/terms" className="text-sm text-zinc-400 hover:text-brand-400 transition-colors">{t('footer.terms', lang)}</Link></li>
+               <li><Link to="/legal/privacy" className="text-sm text-zinc-400 hover:text-brand-400 transition-colors">{t('footer.privacy', lang)}</Link></li>
+               <li><Link to="/legal/notice" className="text-sm text-zinc-400 hover:text-brand-400 transition-colors">{t('footer.notice', lang)}</Link></li>
+             </ul>
           </div>
-          <div className="flex items-start gap-4">
-            <span className="w-10 h-10 rounded-full bg-purple-500/20 text-purple-500 flex items-center justify-center text-xl shrink-0">📍</span>
-            <div>
-              <p className="text-white font-bold text-sm mb-1">{t('footer.feat4.title', lang)}</p>
-              <p className="text-zinc-500 text-xs">{t('footer.feat4.desc', lang)}</p>
-            </div>
+
+          <div>
+             <h4 className="text-white font-black uppercase tracking-widest text-[10px] mb-6">Partners</h4>
+             <ul className="space-y-4">
+               <li><Link to="/partners" className="text-sm text-zinc-400 hover:text-brand-400 transition-colors">{t('forRestaurants.cta', lang)}</Link></li>
+               <li><Link to="/legal/partner-terms" className="text-sm text-zinc-400 hover:text-brand-400 transition-colors">{t('footer.partner', lang)}</Link></li>
+             </ul>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Legal links */}
-          <nav className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2">
-            {[
-              { key: 'footer.terms',   href: '/legal/terms' },
-              { key: 'footer.privacy', href: '/legal/privacy' },
-              { key: 'footer.notice',  href: '/legal/notice' },
-              { key: 'footer.partner', href: '/legal/partner-terms' },
-            ].map(({ key, href }) => (
-              <Link
-                key={key}
-                to={href}
-                className="text-xs text-zinc-500 hover:text-brand-400 transition-colors"
-              >
-                {t(key, lang)}
-              </Link>
-            ))}
-          </nav>
-
-          <p className="text-center text-xs text-zinc-600">
-            {t('footer.copy', lang)}
+        <div className="pt-12 border-t border-zinc-900 flex flex-col md:flex-row items-center justify-between gap-8">
+          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">{t('footer.copy', lang)}</p>
+          <p className="text-[10px] text-zinc-600 max-w-lg md:text-right leading-relaxed italic">
+            {t('footer.disclaimer', lang)}
           </p>
         </div>
-
-        {/* Disclaimer */}
-        <p className="text-center md:text-left text-[10px] text-zinc-600 mt-6 pt-6 border-t border-zinc-800/50">
-          {t('footer.disclaimer', lang)}
-        </p>
       </div>
     </footer>
   )

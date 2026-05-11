@@ -1,120 +1,130 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLang } from '../context/LangContext'
 import { t } from '../lib/i18n'
-import { trackEvent } from '../lib/api'
-import type { Scenario } from '../types'
+import { fetchRestaurants, trackEvent } from '../lib/api'
+import type { Restaurant, Scenario } from '../types'
+import RestaurantCard from '../components/RestaurantCard'
 
-// Scenario options (replaces food category grid)
 const SCENARIOS: { key: Scenario; icon: string }[] = [
-  { key: 'dinner',  icon: '🍽' },
-  { key: 'coffee',  icon: '☕' },
-  { key: 'drinks',  icon: '🍺' },
-  { key: 'quick',   icon: '⚡' },
+  { key: 'dinner', icon: '🍽' },
+  { key: 'coffee', icon: '☕' },
+  { key: 'drinks', icon: '🍷' },
+  { key: 'quick', icon: '⚡' },
 ]
 
-// Fixed city list as specified (plus dynamic from DB)
 const STATIC_CITIES = [
   'Luxembourg City', 'Esch-sur-Alzette', 'Differdange',
   'Dudelange', 'Ettelbruck', 'Diekirch', 'Echternach',
   'Wiltz', 'Remich', 'Grevenmacher',
 ]
 
-// How it works — NO scooter
 const HOW_IT_WORKS = [
-  { step: '1', titleKey: 'howItWorks.step1', hintKey: 'howItWorks.step1.hint', icon: '🔍' },
+  { step: '1', titleKey: 'howItWorks.step1', hintKey: 'howItWorks.step1.hint', icon: '🎯' },
   { step: '2', titleKey: 'howItWorks.step2', hintKey: 'howItWorks.step2.hint', icon: '📍' },
   { step: '3', titleKey: 'howItWorks.step3', hintKey: 'howItWorks.step3.hint', icon: '📞' },
 ]
 
-// Read saved places from localStorage
 function getSavedIds(): number[] {
   try {
     return JSON.parse(localStorage.getItem('bonapp_saved') || '[]')
   } catch { return [] }
 }
 
-interface PickForMeSheetProps {
-  scenario: Scenario | null
-  onClose: () => void
-  onConfirm: (groupSize: number, budget: number) => void
-  lang: 'en' | 'fr'
+function SkeletonCard() {
+  return (
+    <div className="bg-zinc-900/40 border border-zinc-800 rounded-[32px] overflow-hidden h-full flex flex-col">
+      <div className="skeleton w-full h-[240px]" />
+      <div className="p-6 space-y-4">
+        <div className="skeleton h-6 w-2/3" />
+        <div className="skeleton h-4 w-1/2" />
+        <div className="skeleton h-16 w-full rounded-2xl" />
+      </div>
+    </div>
+  )
 }
 
-function PickForMeSheet({ scenario: _scenario, onClose, onConfirm, lang }: PickForMeSheetProps) {
+interface PickForMeSheetProps {
+  onClose: () => void
+  onConfirm: (groupSize: number, budget: number) => void
+  lang: 'en' | 'fr' | 'lb'
+}
+
+function PickForMeSheet({ onClose, onConfirm, lang }: PickForMeSheetProps) {
   const [groupSize, setGroupSize] = useState<number | null>(null)
   const [budget, setBudget] = useState<number | null>(null)
 
   const groupOptions = [
-    { label: t('pickForMe.justMe', lang), value: 1 },
-    { label: t('pickForMe.twoThree', lang), value: 3 },
-    { label: t('pickForMe.fourPlus', lang), value: 4 },
+    { label: t('pickForMe.justMe', lang), value: 1, icon: '👤' },
+    { label: t('pickForMe.twoThree', lang), value: 3, icon: '👫' },
+    { label: t('pickForMe.fourPlus', lang), value: 4, icon: '👨‍👩‍👦' },
   ]
 
   const budgetOptions = [
-    { label: '€ Budget', value: 1 },
-    { label: '€€ Mid',   value: 2 },
-    { label: '€€€ Premium', value: 3 },
+    { label: '€', value: 1, sub: 'Budget' },
+    { label: '€€', value: 2, sub: 'Mid' },
+    { label: '€€€', value: 3, sub: 'Premium' },
   ]
 
   function handleConfirm() {
-    if (groupSize !== null) trackEvent('group_size_selected', { size: groupSize })
-    if (budget !== null)    trackEvent('budget_selected', { budget })
-    onConfirm(groupSize ?? 1, budget ?? 2)
+    const selectedGroup = groupSize ?? 1
+    const selectedBudget = budget ?? 2
+    trackEvent('group_size_selected', { size: selectedGroup })
+    trackEvent('budget_selected', { budget: selectedBudget })
+    onConfirm(selectedGroup, selectedBudget)
   }
 
   return (
-    <div
-      className="bottom-sheet-overlay"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="bottom-sheet">
-        {/* Handle */}
-        <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-6" />
-        <h2 className="text-lg font-bold text-white mb-6 text-center">
-          {t('pickForMe.title', lang)}
-        </h2>
+    <div className="bottom-sheet-overlay !bg-zinc-950/80 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="bottom-sheet !max-w-md !p-8 !rounded-[32px] shadow-2xl shadow-black">
+        <div className="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-8" />
+        <h2 className="text-3xl font-black text-white mb-10 text-center tracking-tight">{t('pickForMe.title', lang)}</h2>
 
-        {/* Group size */}
-        <p className="text-sm text-zinc-400 mb-3">{t('pickForMe.howMany', lang)}</p>
-        <div className="grid grid-cols-3 gap-2 mb-6">
-          {groupOptions.map(({ label, value }) => (
-            <button
-              key={value}
-              onClick={() => setGroupSize(value)}
-              className={`py-3 rounded-xl text-sm font-semibold transition-all active:scale-95 ${
-                groupSize === value
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-brand-500'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="space-y-8 mb-12">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-4">{t('pickForMe.howMany', lang)}</p>
+            <div className="grid grid-cols-3 gap-3">
+              {groupOptions.map(({ label, value, icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setGroupSize(value)}
+                  className={`flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all active:scale-95 ${
+                    groupSize === value ? 'border-brand-500 bg-brand-500/10' : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700'
+                  }`}
+                >
+                  <span className="text-xl" aria-hidden="true">{icon}</span>
+                  <span className={`text-[10px] font-black uppercase tracking-wider ${groupSize === value ? 'text-white' : 'text-zinc-500'}`}>
+                    {label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-4">{t('pickForMe.budget', lang)}</p>
+            <div className="grid grid-cols-3 gap-3">
+              {budgetOptions.map(({ label, value, sub }) => (
+                <button
+                  key={value}
+                  onClick={() => setBudget(value)}
+                  className={`flex flex-col items-center justify-center gap-1 p-4 rounded-2xl border transition-all active:scale-95 ${
+                    budget === value ? 'border-brand-500 bg-brand-500/10' : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700'
+                  }`}
+                >
+                  <span className={`text-xl font-black ${budget === value ? 'text-brand-500' : 'text-white'}`}>{label}</span>
+                  <span className={`text-[9px] font-black uppercase tracking-widest ${budget === value ? 'text-white' : 'text-zinc-600'}`}>
+                    {sub}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Budget */}
-        <p className="text-sm text-zinc-400 mb-3">{t('pickForMe.budget', lang)}</p>
-        <div className="grid grid-cols-3 gap-2 mb-8">
-          {budgetOptions.map(({ label, value }) => (
-            <button
-              key={value}
-              onClick={() => setBudget(value)}
-              className={`py-3 rounded-xl text-sm font-semibold transition-all active:scale-95 ${
-                budget === value
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-brand-500'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <button
-          id="pick-for-me-confirm"
-          onClick={handleConfirm}
-          className="btn-primary w-full py-4 text-base rounded-2xl"
+        <button 
+          onClick={handleConfirm} 
+          className="btn-pick-for-me !h-[72px] !text-xl !max-w-none shadow-brand-500/20"
         >
           {t('pickForMe.show', lang)}
         </button>
@@ -123,6 +133,52 @@ function PickForMeSheet({ scenario: _scenario, onClose, onConfirm, lang }: PickF
   )
 }
 
+const FALLBACK_RESTAURANTS: Restaurant[] = [
+  {
+    id: -1,
+    name: 'Tempo Bar sous la Philharmonie',
+    city: 'Luxembourg City',
+    cuisine_primary: 'French / Mediterranean',
+    image_url: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80',
+    notes: 'Cozy atmosphere with great wine selection next to the Philharmonie.',
+    price_range: 3,
+    lat: 49.618,
+    lng: 6.139,
+    phone: '+352 26 27 02 44',
+    website_url: 'https://www.tempobar.lu',
+    verification_status: 'verified',
+    partner_status: 'active'
+  },
+  {
+    id: -2,
+    name: 'Bao8',
+    city: 'Luxembourg City',
+    cuisine_primary: 'Asian / Dim Sum',
+    image_url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
+    notes: 'Fast, fresh and authentic Asian flavors in the heart of the city.',
+    price_range: 2,
+    lat: 49.611,
+    lng: 6.130,
+    phone: '+352 26 20 18 88',
+    website_url: 'https://www.bao8.lu',
+    verification_status: 'verified'
+  },
+  {
+    id: -3,
+    name: 'Pizzeria Onesto',
+    city: 'Luxembourg City',
+    cuisine_primary: 'Italian / Pizza',
+    image_url: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80',
+    notes: 'Traditional wood-fired pizzas with a cozy terrace for summer nights.',
+    price_range: 2,
+    lat: 49.612,
+    lng: 6.132,
+    phone: '+352 22 25 10',
+    website_url: 'https://www.onesto.lu',
+    verification_status: 'verified'
+  }
+]
+
 export default function HomePage() {
   const navigate = useNavigate()
   const { lang } = useLang()
@@ -130,17 +186,38 @@ export default function HomePage() {
   const [scenario, setScenario] = useState<Scenario | null>(null)
   const [city, setCity] = useState(() => sessionStorage.getItem('bonapp_city') || '')
   const [showSheet, setShowSheet] = useState(false)
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
+  const [loading, setLoading] = useState(true)
 
   const savedIds = getSavedIds()
+
+  useEffect(() => {
+    setLoading(true)
+    fetchRestaurants({ city: city || undefined, scenario: scenario || undefined })
+      .then(data => {
+        if (data && data.length > 0) {
+          setRestaurants(data.slice(0, 3))
+        } else {
+          setRestaurants(FALLBACK_RESTAURANTS)
+        }
+      })
+      .catch(() => setRestaurants(FALLBACK_RESTAURANTS))
+      .finally(() => setLoading(false))
+  }, [city, scenario])
+
+  function goToResults(nextScenario?: Scenario, groupSize?: number, budget?: number) {
+    const url = new URLSearchParams()
+    if (nextScenario) url.set('scenario', nextScenario)
+    if (city) url.set('city', city)
+    if (budget) url.set('price_range', String(budget))
+    if (groupSize) url.set('group_size', String(groupSize))
+    if (!nextScenario) url.set('surprise', '1')
+    navigate(`/results?${url.toString()}`)
+  }
 
   function handleScenario(s: Scenario) {
     setScenario(s)
     trackEvent('scenario_selected', { scenario: s })
-    // navigate immediately on scenario tap
-    const url = new URLSearchParams()
-    url.set('scenario', s)
-    if (city) url.set('city', city)
-    navigate(`/results?${url.toString()}`)
   }
 
   function handleCityChange(c: string) {
@@ -156,180 +233,237 @@ export default function HomePage() {
 
   function handleSheetConfirm(groupSize: number, budget: number) {
     setShowSheet(false)
-    const url = new URLSearchParams()
-    if (scenario) url.set('scenario', scenario)
-    if (city) url.set('city', city)
-    url.set('price_range', String(budget))
-    url.set('group_size', String(groupSize))
-    url.set('surprise', '1')
-    navigate(`/results?${url.toString()}`)
+    goToResults(scenario ?? undefined, groupSize, budget)
   }
 
   return (
     <main className="flex-1 flex flex-col">
+      {showSheet && <PickForMeSheet onClose={() => setShowSheet(false)} onConfirm={handleSheetConfirm} lang={lang} />}
 
-      {/* Pick for me bottom sheet */}
-      {showSheet && (
-        <PickForMeSheet
-          scenario={scenario}
-          onClose={() => setShowSheet(false)}
-          onConfirm={handleSheetConfirm}
-          lang={lang}
-        />
-      )}
+      {/* ── HERO SECTION ── */}
+      <section className="relative overflow-hidden bg-zinc-950 border-b border-zinc-900">
+        <div className="absolute inset-0 z-0 lg:hidden">
+           <img 
+             src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80" 
+             className="w-full h-full object-cover opacity-20"
+             alt="Vibe"
+           />
+           <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-transparent to-zinc-950" />
+        </div>
 
-      {/* ── HERO ── */}
-      <section className="relative w-full overflow-hidden flex flex-col items-center sm:items-start text-center sm:text-left px-4 pt-20 pb-16 lg:pt-32 lg:pb-24">
-        {/* Background image & gradient */}
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center opacity-30"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent sm:bg-gradient-to-r sm:from-zinc-950 sm:via-zinc-950/90 sm:to-transparent"></div>
-        
-        <div className="relative z-10 max-w-6xl w-full mx-auto">
-          {/* Tagline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-[1.1] max-w-2xl mx-auto sm:mx-0">
-            {t('home.tagline', lang)}
-          </h1>
-          <p className="text-zinc-300 text-base sm:text-lg lg:text-xl max-w-lg mb-10 mx-auto sm:mx-0">
-            {t('home.subtitle', lang)}
-          </p>
+        <div className="relative z-10 container grid lg:grid-cols-[1fr_1.2fr] gap-16 lg:gap-24 items-center min-h-[85svh] lg:min-h-[800px] py-20">
+          
+          {/* Left Side: Copy & Dominant CTA */}
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+            <h1 className="text-[44px] sm:text-[56px] lg:text-[88px] font-black text-white leading-[0.95] mb-10 tracking-tighter max-w-[700px]">
+              {t('home.tagline', lang)}
+            </h1>
+            <p className="text-xl sm:text-2xl text-zinc-400 mb-14 max-w-lg font-medium leading-relaxed">
+              {t('home.subtitle', lang)}
+            </p>
 
-          <div className="w-full max-w-md bg-zinc-900/80 backdrop-blur-md border border-zinc-700 p-2 rounded-2xl flex items-center mx-auto sm:mx-0">
-            <span className="pl-3 text-brand-500">📍</span>
-            <select
-              id="city-selector"
-              value={city}
-              onChange={(e) => handleCityChange(e.target.value)}
-              className="flex-1 bg-transparent border-none px-3 py-2 text-sm text-white focus:outline-none focus:ring-0 cursor-pointer"
+            <button 
+              id="hero-cta-main" 
+              onClick={handlePickForMe} 
+              className="btn-pick-for-me mb-16 group"
             >
-              <option value="" className="bg-zinc-900">{t('home.cityLabel', lang)}</option>
-              {STATIC_CITIES.map((c) => (
-                <option key={c} value={c} className="bg-zinc-900">{c}</option>
-              ))}
-            </select>
+              {t('home.pickForMe', lang)}
+            </button>
+
+            {/* Social Proof Strip */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-10 gap-y-4 mb-10 opacity-30">
+              <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 flex items-center gap-3">
+                <span className="text-xl">🏪</span> {t('home.socialLocal', lang)}
+              </span>
+              <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 flex items-center gap-3">
+                <span className="text-xl">📞</span> {t('home.socialNoApps', lang)}
+              </span>
+              <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 flex items-center gap-3">
+                <span className="text-xl">✓</span> {t('home.curated', lang)}
+              </span>
+            </div>
+          </div>
+
+          {/* Right Side: Emotional Collage */}
+          <div className="hidden lg:grid grid-cols-2 gap-6 h-[650px] transform rotate-3 scale-105 origin-center">
+            <div className="space-y-6">
+              <img 
+                src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80" 
+                className="w-full h-[360px] object-cover rounded-[48px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out cursor-pointer"
+                alt="Restaurant Table Atmosphere"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80" 
+                className="w-full h-[260px] object-cover rounded-[48px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out cursor-pointer"
+                alt="Delicious Pizza Oven"
+              />
+            </div>
+            <div className="space-y-6 pt-16">
+              <img 
+                src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80" 
+                className="w-full h-[260px] object-cover rounded-[48px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out cursor-pointer"
+                alt="Evening Cocktails Bar"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80" 
+                className="w-full h-[360px] object-cover rounded-[48px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out cursor-pointer"
+                alt="Gourmet Dessert Atmosphere"
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── SAVED PLACES (if any) ── */}
-      {savedIds.length > 0 && (
-        <section className="max-w-6xl w-full mx-auto px-4 -mt-4 mb-8 relative z-20">
-          <button
-            onClick={() => navigate('/results?saved=1')}
-            className="max-w-md flex items-center justify-between bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-3 hover:border-brand-500/50 transition-colors mx-auto sm:mx-0"
+      {/* ── TONIGHT IN LUXEMBOURG ── */}
+      <section id="tonight" className="container py-20 sm:py-32">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 mb-12">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="w-8 h-[2px] bg-brand-500" />
+              <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em]">Haut den Owend</span>
+            </div>
+            <h2 className="text-[40px] sm:text-[56px] font-black text-white mb-4 tracking-tighter leading-none">
+              {t('home.tonightTitle', lang)}
+            </h2>
+            <p className="text-xl text-zinc-500 font-bold">{t('home.tonightSubtitle', lang)}</p>
+          </div>
+          <button 
+            onClick={() => goToResults(scenario ?? undefined)} 
+            className="group flex items-center gap-4 text-white font-black uppercase tracking-widest text-xs hover:text-brand-400 transition-colors"
           >
-            <span className="text-sm text-zinc-300 font-medium">
-              ♥ {t('home.savedPlaces', lang)} ({savedIds.length})
-            </span>
-            <span className="text-xs text-brand-400 ml-4">→</span>
+            {t('results.showAll', lang)} 
+            <span className="w-12 h-12 rounded-full border border-zinc-800 flex items-center justify-center group-hover:border-brand-500 group-hover:translate-x-2 transition-all">→</span>
           </button>
+        </div>
+
+        {loading ? (
+          <div className="results-grid">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        ) : (
+          <div className="results-grid">
+            {restaurants.map((r, i) => (
+              <RestaurantCard 
+                key={r.id} 
+                restaurant={r} 
+                rank={i + 1} 
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ── SCENARIOS & CITIES ── */}
+      <section className="bg-zinc-900/40 border-y border-zinc-900 py-24">
+        <div className="container grid lg:grid-cols-2 gap-20">
+          <div>
+            {/* Scenarios */}
+            <div className="w-full max-w-xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-6">Explore by Vibe · Local picks</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {SCENARIOS.map(({ key, icon }) => (
+                <button
+                  key={key}
+                  id={`scenario-${key}`}
+                  onClick={() => handleScenario(key)}
+                  className={`flex flex-col items-center justify-center gap-3 p-5 rounded-[24px] border transition-all active:scale-95 group ${
+                    scenario === key ? 'border-brand-500 bg-brand-500/10' : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700'
+                  }`}
+                >
+                  <span className="text-3xl group-hover:scale-125 transition-transform" aria-hidden="true">{icon}</span>
+                  <div className="text-left">
+                    <span className="block text-sm font-black text-white uppercase tracking-wider">
+                      {t(`scenario.${key}`, lang).replace('🍽 ', '').replace('☕ ', '').replace('🍷 ', '').replace('⚡ ', '')}
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-bold">Explore top 3</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-8">Popular in Luxembourg</p>
+            <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-[32px] shadow-2xl">
+              <div className="flex items-center gap-4 mb-6">
+                <span className="text-2xl">📍</span>
+                <h3 className="text-xl font-black text-white tracking-tight">Browse by city</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {STATIC_CITIES.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => handleCityChange(c)}
+                    className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                      city === c ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/25' : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SAVED PLACES (CONDITIONAL) ── */}
+      {savedIds.length > 0 && (
+        <section className="py-12">
+          <div className="container">
+             <button onClick={() => navigate('/results?saved=1')} className="group inline-flex items-center gap-6 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 p-6 rounded-[32px] transition-all">
+                <span className="w-14 h-14 rounded-2xl bg-brand-500 text-white flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">♥</span>
+                <div className="text-left">
+                  <p className="text-xl font-black text-white">{t('home.savedPlaces', lang)}</p>
+                  <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">{savedIds.length} {savedIds.length === 1 ? 'place' : 'places'} ready for you</p>
+                </div>
+             </button>
+          </div>
         </section>
       )}
 
-      {/* ── MAIN CTA + SCENARIOS ── */}
-      <section className="relative z-20 max-w-6xl w-full mx-auto px-4 pb-16 mt-4">
-        
-        <p className="text-xs text-zinc-400 font-bold uppercase tracking-widest mb-4">
-          {t('home.orChoose', lang)}
-        </p>
-
-        <div className="flex flex-col lg:flex-row gap-4 items-stretch mb-8">
-          {/* Scenario grid */}
-          <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {SCENARIOS.map(({ key, icon }) => (
-              <button
-                key={key}
-                id={`scenario-${key}`}
-                onClick={() => handleScenario(key)}
-                className={`flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start gap-3 bg-zinc-900/80 backdrop-blur-md border rounded-2xl p-4 sm:p-5 transition-all text-left ${scenario === key ? 'border-brand-500 bg-brand-500/10 shadow-lg shadow-brand-500/20' : 'border-zinc-700 hover:border-zinc-500'}`}
-              >
-                <span className="text-3xl sm:text-2xl leading-none text-brand-400">{icon}</span>
-                <span className="text-sm font-bold text-white leading-tight mt-1 sm:mt-0">{t(`scenario.${key}`, lang)}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* No Delivery Box */}
-          <div className="lg:w-72 shrink-0 bg-zinc-900/80 backdrop-blur-md border border-zinc-700 rounded-2xl p-5 flex items-center gap-4">
-            <span className="text-3xl bg-zinc-800 p-2 rounded-xl">🛵</span>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              <span className="font-bold text-white block mb-0.5">{t('home.noDeliveryTitle', lang)}</span>
-              {t('home.noDeliveryBody', lang)}
-            </p>
-          </div>
-        </div>
-
-        {/* PRIMARY: Pick for me */}
-        <button
-          id="pick-for-me-btn"
-          onClick={handlePickForMe}
-          className="btn-primary py-4 px-8 text-base sm:text-lg rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl shadow-brand-500/20 hover:shadow-brand-500/40 w-full sm:w-auto min-w-[240px]"
-        >
-          <span className="text-2xl leading-none bg-white/20 p-1 rounded-md">🎲</span> {t('home.pickForMe', lang)}
-        </button>
-      </section>
-
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" className="max-w-6xl w-full mx-auto px-4 pb-8">
-        <div className="border border-zinc-800 rounded-3xl p-6 md:p-8 bg-zinc-950/60 mt-12">
-          <h2 className="text-xl font-bold text-white mb-6">
-            {t('howItWorks.title', lang)}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
-            {/* Arrows for desktop */}
-            <div className="hidden md:block absolute top-6 left-[28%] text-zinc-700">→</div>
-            <div className="hidden md:block absolute top-6 left-[62%] text-zinc-700">→</div>
-            
-            {HOW_IT_WORKS.map(({ step, titleKey, hintKey, icon }) => (
-              <div key={step} className="flex flex-col items-center md:items-start text-center md:text-left gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="w-10 h-10 rounded-full bg-brand-500 text-white text-sm font-bold flex items-center justify-center shrink-0">
-                    {step}
-                  </span>
-                  <span className="text-3xl bg-zinc-900 w-12 h-12 rounded-full flex items-center justify-center">{icon}</span>
-                </div>
-                <div>
-                  <p className="text-base text-white font-bold mb-1">
-                    {t(titleKey, lang)}
-                  </p>
-                  <p className="text-sm text-zinc-400">
-                    {t(hintKey, lang)}
-                  </p>
-                </div>
+      <section className="container py-32">
+        <div className="text-center max-w-2xl mx-auto mb-20">
+          <h2 className="text-[40px] font-black text-white mb-6 tracking-tight">{t('howItWorks.title', lang)}</h2>
+          <div className="w-20 h-1.5 bg-brand-500 mx-auto rounded-full" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {HOW_IT_WORKS.map((step) => (
+            <div key={step.step} className="group p-10 rounded-[40px] bg-zinc-900/30 border border-zinc-800 hover:border-brand-500/30 transition-all text-center">
+              <div className="w-20 h-20 rounded-3xl bg-zinc-800 flex items-center justify-center text-4xl mb-8 mx-auto group-hover:scale-110 group-hover:bg-brand-500/10 group-hover:text-brand-500 transition-all">
+                {step.icon}
               </div>
-            ))}
-          </div>
+              <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight">{t(step.titleKey, lang)}</h3>
+              <p className="text-zinc-500 font-medium leading-relaxed">{t(step.hintKey, lang)}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ── FOR RESTAURANTS ── */}
-      <section id="for-restaurants" className="max-w-6xl w-full mx-auto px-4 pb-16">
-        <div className="border border-brand-500/20 rounded-3xl overflow-hidden bg-brand-500/5 flex flex-col md:flex-row items-stretch">
-          <div className="md:w-1/3 bg-[url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80')] bg-cover bg-center min-h-[200px] md:min-h-full opacity-60"></div>
-          <div className="p-8 md:p-10 flex-1 flex flex-col justify-center">
-            <p className="text-2xl font-bold text-brand-500 mb-3">
+      <section className="container py-20">
+        <div className="relative overflow-hidden bg-brand-500 rounded-[48px] p-12 sm:p-20 flex flex-col items-center text-center">
+          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+          <div className="relative z-10 max-w-2xl">
+            <h2 className="text-4xl sm:text-6xl font-black text-zinc-950 mb-6 tracking-tighter leading-none">
               {t('forRestaurants.title', lang)}
-            </p>
-            <p className="text-base text-zinc-300 mb-6 leading-relaxed max-w-lg">
+            </h2>
+            <p className="text-xl text-zinc-900 font-bold mb-10 leading-relaxed">
               {t('forRestaurants.body', lang)}
             </p>
-            <div className="space-y-3 mb-8">
-              <div className="flex items-center gap-2 text-sm text-zinc-300"><span className="text-brand-500">✓</span> {t('forRestaurants.feat1', lang)}</div>
-              <div className="flex items-center gap-2 text-sm text-zinc-300"><span className="text-brand-500">✓</span> {t('forRestaurants.feat2', lang)}</div>
-              <div className="flex items-center gap-2 text-sm text-zinc-300"><span className="text-brand-500">✓</span> {t('forRestaurants.feat3', lang)}</div>
-            </div>
-            <div>
-              <Link
-                id="cta-join-pilot"
-                to="/partners"
-                className="inline-block bg-brand-500 hover:bg-brand-400 text-white font-bold py-3 px-6 rounded-xl transition-colors"
-              >
-                {t('forRestaurants.cta', lang)}
-              </Link>
-            </div>
+            <button 
+              onClick={() => navigate('/partners')}
+              className="bg-zinc-950 text-white h-[72px] px-12 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-black/20"
+            >
+              {t('forRestaurants.cta', lang)}
+            </button>
           </div>
         </div>
       </section>
-
     </main>
   )
 }

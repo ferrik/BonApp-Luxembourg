@@ -6,38 +6,37 @@ import type { Restaurant, PartnerApplicationPayload } from '../types'
 
 const VERIFICATION_OPTIONS = ['pending', 'verified', 'inferred', 'unverified', 'needs_verification']
 const PARTNER_OPTIONS = ['new', 'contacted', 'interested', 'follow_up', 'trial', 'active', 'premium', 'paused', 'onboarded', 'rejected']
-const APPLICATION_STATUSES = ['pending', 'active', 'rejected']
 
 const VERIFICATION_LABELS: Record<string, string> = {
-  pending: 'pending (очікує)',
-  verified: 'verified (перевірено)',
-  inferred: 'inferred (передбачено)',
-  unverified: 'unverified (не перевірено)',
-  needs_verification: 'needs_verification (потребує перевірки)'
+  pending: 'pending (waart)',
+  verified: 'verified (verifizéiert)',
+  inferred: 'inferred (virausgesot)',
+  unverified: 'unverified (net verifizéiert)',
+  needs_verification: 'needs_verification (brauch Verifikatioun)'
 }
 
 const PARTNER_LABELS: Record<string, string> = {
-  new: 'new (новий)',
-  contacted: 'contacted (зв\'язалися)',
-  interested: 'interested (зацікавлений)',
-  follow_up: 'follow_up (на контролі)',
-  trial: 'trial (тестовий)',
-  active: 'active (активний)',
-  premium: 'premium (преміум)',
-  paused: 'paused (на паузі)',
-  onboarded: 'onboarded (підключений)',
-  rejected: 'rejected (відхилено)'
+  new: 'new (nei)',
+  contacted: 'contacted (kontaktéiert)',
+  interested: 'interested (interesséiert)',
+  follow_up: 'follow_up (follow-up)',
+  trial: 'trial (trial)',
+  active: 'active (aktiv)',
+  premium: 'premium (premium)',
+  paused: 'paused (pauséiert)',
+  onboarded: 'onboarded (onboarded)',
+  rejected: 'rejected (ofgeleent)'
 }
 
 const CUISINE_LABELS: Record<string, string> = {
-  Italian: 'Italian (Італійська)',
-  Asian: 'Asian (Азійська)',
-  Burger: 'Burger (Бургери)',
-  Kebab: 'Kebab (Кебаб)',
-  Local: 'Local (Місцева)',
-  Healthy: 'Healthy (Здорова)',
-  Indian: 'Indian (Індійська)',
-  Other: 'Other (Інше)'
+  Italian: 'Italian (Italienesch)',
+  Asian: 'Asian (Asiatesch)',
+  Burger: 'Burger (Burger)',
+  Kebab: 'Kebab (Kebab)',
+  Local: 'Local (Lokal)',
+  Healthy: 'Healthy (Gesond)',
+  Indian: 'Indian (Indesch)',
+  Other: 'Other (Aneres)'
 }
 
 const getVerStatusColor = (val: string) => {
@@ -84,6 +83,10 @@ interface SaveStatus {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BASE_URL = ((import.meta as any).env?.VITE_API_URL ?? '') + '/api'
 
+function adminHeaders(token: string, json = false): HeadersInit {
+  return json ? { 'Content-Type': 'application/json', 'X-Admin-Token': token } : { 'X-Admin-Token': token }
+}
+
 // Combine Payload with DB fields
 type PartnerApplication = PartnerApplicationPayload & {
   id: number
@@ -127,7 +130,7 @@ export default function AdminPage() {
   async function fetchAnalytics() {
     setAnalyticsLoading(true)
     try {
-      const res = await fetch(`${BASE_URL}/tracking/summary`)
+      const res = await fetch(`${BASE_URL}/tracking/summary`, { headers: adminHeaders(adminToken) })
       if (!res.ok) throw new Error('Failed to fetch analytics')
       const data = await res.json()
       setAnalytics(data)
@@ -141,7 +144,8 @@ export default function AdminPage() {
   async function fetchRestaurants() {
     setLoading(true)
     try {
-      const res = await fetch(`${BASE_URL}/restaurants?limit=500&admin=true`)
+      if (!adminToken) { setRestaurants([]); setError('Admin token required'); setLoading(false); return }
+      const res = await fetch(`${BASE_URL}/restaurants?limit=500&admin=true`, { headers: adminHeaders(adminToken) })
       if (!res.ok) throw new Error('Failed to fetch')
       const data: Restaurant[] = await res.json()
       setRestaurants(data)
@@ -178,7 +182,7 @@ export default function AdminPage() {
     setAppError(null)
     try {
       const res = await fetch(`${BASE_URL}/partners`, {
-        headers: { 'X-Admin-Token': adminToken }
+        headers: adminHeaders(adminToken)
       })
       if (!res.ok) {
         if (res.status === 401) throw new Error('Unauthorized - Invalid token')
@@ -264,7 +268,7 @@ export default function AdminPage() {
       // 2. Mark application as active
       await fetch(`${BASE_URL}/partners/${app.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Token': adminToken },
+        headers: adminHeaders(adminToken, true),
         body: JSON.stringify({ status: 'active', admin_notes: 'Promoted to restaurant' }),
       })
       setApplications((prev) => prev.map((a) => a.id === app.id ? { ...a, status: 'active' } : a))
@@ -279,7 +283,7 @@ export default function AdminPage() {
     try {
       const res = await fetch(`${BASE_URL}/partners/${id}`, {
         method: 'DELETE',
-        headers: { 'X-Admin-Token': adminToken },
+        headers: adminHeaders(adminToken),
       })
       if (!res.ok) throw new Error('Failed to delete')
       setApplications((prev) => prev.filter((a) => a.id !== id))
@@ -348,7 +352,6 @@ export default function AdminPage() {
     return e.status !== app.status || e.admin_notes !== (app.admin_notes ?? '')
   }
 
-  const cuisines = [...new Set(restaurants.map((r) => r.cuisine_primary).filter(Boolean))]
 
   const filtered = restaurants.filter((r) => {
     const matchSearch =
@@ -389,6 +392,16 @@ export default function AdminPage() {
         </button>
       </div>
 
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 flex flex-col sm:flex-row gap-3 sm:items-center">
+        <input
+          type="password"
+          placeholder="Admin token"
+          value={adminToken}
+          onChange={(e) => setAdminToken(e.target.value)}
+          className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-brand-500 max-w-sm w-full"
+        />
+        <span className="text-xs text-zinc-500">Required for restaurant edits, applications, and analytics.</span>
+      </div>
       {/* Tabs */}
       <div className="flex rounded-xl border border-zinc-800 overflow-hidden mb-6">
         <button
@@ -956,3 +969,5 @@ export default function AdminPage() {
     </main>
   )
 }
+
+
