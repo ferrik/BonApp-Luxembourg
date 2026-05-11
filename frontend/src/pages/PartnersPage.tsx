@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../context/LangContext'
 import { t } from '../lib/i18n'
-import { submitPartnerApplication } from '../lib/api'
+import { submitPartnerApplication, uploadImage } from '../lib/api'
 import type { PartnerApplicationPayload } from '../types'
 
 // Cuisine options matching our categories
@@ -49,11 +49,16 @@ const LABELS = {
     tabUpdate: 'Update my listing',
     updateNotice: "Is your restaurant already listed on BonApp? Request a correction and we'll verify it with you.",
     sectionRestaurant: '1. Restaurant Identity',
-    sectionContact: '2. Your Contact Details',
-    sectionOnline: '3. Digital Presence',
-    sectionDelivery: '4. Service Options',
-    sectionHours: '5. Opening Hours',
-    sectionNotes: '6. Final Details',
+    sectionLogo: '2. Restaurant Logo',
+    sectionPhotos: '3. Restaurant Photos',
+    sectionContact: '4. Your Contact Details',
+    sectionOnline: '5. Digital Presence',
+    sectionDelivery: '6. Service Options',
+    sectionHours: '7. Opening Hours',
+    sectionNotes: '8. Final Details',
+    logoHint: 'Single logo for brand identity',
+    galleryHint: 'Up to 5 photos of atmosphere and food',
+    uploadBtn: 'Upload photo',
     restaurantName: 'Restaurant name *',
     cuisineType: 'What do you serve?',
     city: 'City / Commune',
@@ -100,11 +105,16 @@ const LABELS = {
     tabUpdate: 'Mettre à jour une fiche existante',
     updateNotice: 'Votre restaurant est déjà répertorié sur BonApp ? Demandez une correction et nous la vérifierons avec vous.',
     sectionRestaurant: '1. Identité du Restaurant',
-    sectionContact: '2. Vos Coordonnées',
-    sectionOnline: '3. Présence Numérique',
-    sectionDelivery: '4. Options de Service',
-    sectionHours: '5. Horaires d\'Ouverture',
-    sectionNotes: '6. Détails Finaux',
+    sectionLogo: '2. Logo du Restaurant',
+    sectionPhotos: '3. Photos du Restaurant',
+    sectionContact: '4. Vos Coordonnées',
+    sectionOnline: '5. Présence Numérique',
+    sectionDelivery: '6. Options de Service',
+    sectionHours: '7. Horaires d\'Ouverture',
+    sectionNotes: '8. Détails Finaux',
+    logoHint: 'Un seul logo для l\'identité de marque',
+    galleryHint: 'Jusqu\'à 5 photos de l\'ambiance et de la cuisine',
+    uploadBtn: 'Télécharger la photo',
     restaurantName: 'Nom du restaurant *',
     cuisineType: 'Que servez-vous ?',
     city: 'Ville / Commune',
@@ -151,11 +161,16 @@ const LABELS = {
     tabUpdate: 'Mäi Rekord aktualiséieren',
     updateNotice: "Ass Äre Restaurant scho bei BonApp? Frot eng Korrektur un a mir kontrolléieren se mat Iech.",
     sectionRestaurant: '1. Restaurant Identitéit',
-    sectionContact: '2. Deng Kontaktdetailer',
-    sectionOnline: '3. Digital Präsenz',
-    sectionDelivery: '4. Service Optiounen',
-    sectionHours: '5. Auerzäiten',
-    sectionNotes: '6. Final Detailer',
+    sectionLogo: '2. Restaurant Logo',
+    sectionPhotos: '3. Restaurant Fotoen',
+    sectionContact: '4. Deng Kontaktdetailer',
+    sectionOnline: '5. Digital Präsenz',
+    sectionDelivery: '6. Service Optiounen',
+    sectionHours: '7. Auerzäiten',
+    sectionNotes: '8. Final Detailer',
+    logoHint: 'Eenzelt Logo fir d\'Mark',
+    galleryHint: 'Bis zu 5 Fotoen vun der Ambiance an dem Iessen',
+    uploadBtn: 'Foto eroplueden',
     restaurantName: 'Numm vum Restaurant *',
     cuisineType: 'Wat bitt dir un?',
     city: 'Stad / Gemeng',
@@ -235,6 +250,8 @@ export default function PartnersPage() {
   const [contactEmail, setContactEmail]     = useState('')
   const [websiteUrl, setWebsiteUrl]         = useState('')
   const [imageUrl, setImageUrl]             = useState('')
+  const [logoUrl, setLogoUrl]               = useState('')
+  const [galleryUrls, setGalleryUrls]       = useState<string[]>([])
   const [orderingUrl, setOrderingUrl]       = useState('')
   const [menuUrl, setMenuUrl]               = useState('')
   const [offersDelivery, setOffersDelivery] = useState(false)
@@ -245,6 +262,34 @@ export default function PartnersPage() {
   const [estDelivery, setEstDelivery]       = useState('')
   const [notes, setNotes]                   = useState('')
   const [schedule, setSchedule]             = useState<WeekSchedule>(defaultWeek)
+
+  const [uploading, setUploading] = useState(false)
+
+  // MOCK: In a real app, this would upload to Supabase Storage or Cloudinary
+  async function handleFileUpload(file: File, type: 'logo' | 'gallery') {
+    setUploading(true)
+    
+    try {
+      // 1. Read file as base64 for the API
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onloadend = async () => {
+        const base64 = reader.result as string
+        
+        // 2. Send to backend
+        const { url } = await uploadImage(base64, type)
+        
+        // 3. Update state
+        if (type === 'logo') setLogoUrl(url)
+        else if (galleryUrls.length < 5) setGalleryUrls([...galleryUrls, url])
+        
+        setUploading(false)
+      }
+    } catch (err) {
+      console.error('Upload failed:', err)
+      setUploading(false)
+    }
+  }
 
   function updateDay(i: number, field: keyof DaySchedule, value: boolean | string) {
     setSchedule(prev => prev.map((d, idx) => idx === i ? { ...d, [field]: value } : d))
@@ -269,7 +314,9 @@ export default function PartnersPage() {
       contact_phone:   contactPhone || undefined,
       contact_email:   contactEmail.trim(),
       website_url:     websiteUrl || undefined,
-      image_url:       imageUrl || undefined,
+      image_url:       galleryUrls[0] || imageUrl || undefined, // Use first gallery photo as main image
+      logo_url:        logoUrl || undefined,
+      gallery_urls:    galleryUrls.length > 0 ? galleryUrls : undefined,
       ordering_url:    orderingUrl || undefined,
       menu_url:        menuUrl || undefined,
       offers_delivery: offersDelivery,
@@ -343,15 +390,24 @@ export default function PartnersPage() {
                   {/* Mock Restaurant Card */}
                   <div className="bg-zinc-950 border border-zinc-800 rounded-[24px] overflow-hidden shadow-3xl max-w-[280px] mx-auto transform -rotate-1 hover:rotate-0 transition-transform duration-500">
                      <div className="h-32 bg-zinc-800 relative">
-                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80" className="w-full h-full object-cover opacity-80" alt="Preview" />
+                        {galleryUrls[0] ? (
+                          <img src={galleryUrls[0]} className="w-full h-full object-cover" alt="Preview" />
+                        ) : (
+                          <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80" className="w-full h-full object-cover opacity-80" alt="Preview" />
+                        )}
                         <div className="absolute top-3 right-3 bg-zinc-950/80 backdrop-blur-md px-2 py-1 rounded-xl border border-zinc-700 text-[9px] font-black text-white uppercase">4.8 ★</div>
+                        {logoUrl && (
+                          <div className="absolute -bottom-4 left-4 w-12 h-12 rounded-xl bg-white border-2 border-zinc-950 p-1 shadow-xl">
+                            <img src={logoUrl} className="w-full h-full object-contain" alt="Logo" />
+                          </div>
+                        )}
                      </div>
-                     <div className="p-4">
+                     <div className="p-4 pt-6">
                         <div className="flex items-center justify-between mb-1">
-                           <h4 className="text-sm font-black text-white">Your Restaurant</h4>
+                           <h4 className="text-sm font-black text-white">{restaurantName || 'Your Restaurant'}</h4>
                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         </div>
-                        <p className="text-zinc-600 text-[10px] font-medium mb-3">Italian · Luxembourg</p>
+                        <p className="text-zinc-600 text-[10px] font-medium mb-3">{cuisineType[0] || 'Cuisine'} · {city || 'Luxembourg'}</p>
                         <div className="flex gap-1.5">
                            <div className="flex-1 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-[9px] font-black uppercase text-white tracking-widest">Call</div>
                            <div className="flex-1 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-[9px] font-black uppercase text-zinc-500 tracking-widest">Menu</div>
@@ -469,9 +525,64 @@ export default function PartnersPage() {
                   </div>
                 </div>
 
-                {/* Section 2: Contact */}
+                {/* Section 2: Logo */}
                 <div>
-                  <SectionTitle num="02">{L.sectionContact}</SectionTitle>
+                  <SectionTitle num="02">{L.sectionLogo}</SectionTitle>
+                  <p className="text-xs text-zinc-500 mb-6 font-medium">{L.logoHint}</p>
+                  <div className="flex items-center gap-8">
+                    <div className="w-24 h-24 rounded-3xl bg-zinc-950 border border-zinc-800 border-dashed flex items-center justify-center overflow-hidden relative group">
+                      {logoUrl ? (
+                        <>
+                          <img src={logoUrl} className="w-full h-full object-contain" alt="Logo" />
+                          <button onClick={() => setLogoUrl('')} className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-black">Remove</button>
+                        </>
+                      ) : (
+                        <span className="text-zinc-800 text-3xl">🏷</span>
+                      )}
+                    </div>
+                    <label className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white cursor-pointer transition-all">
+                      {uploading ? '...' : L.uploadBtn}
+                      <input type="file" className="hidden" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'logo')} />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Section 3: Photos */}
+                <div>
+                  <SectionTitle num="03">{L.sectionPhotos}</SectionTitle>
+                  <p className="text-xs text-zinc-500 mb-8 font-medium">{L.galleryHint}</p>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {galleryUrls.map((url, i) => (
+                      <div key={i} className="aspect-square rounded-[32px] bg-zinc-950 border border-zinc-800 overflow-hidden relative group">
+                         <img src={url} className="w-full h-full object-cover" alt={`Gallery ${i}`} />
+                         <button onClick={() => setGalleryUrls(prev => prev.filter((_, idx) => idx !== i))} className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-black uppercase">Remove</button>
+                      </div>
+                    ))}
+                    
+                    {galleryUrls.length < 5 && (
+                      <label className="aspect-square rounded-[32px] bg-zinc-950/40 border-2 border-zinc-900 border-dashed hover:border-brand-500/50 hover:bg-brand-500/5 transition-all flex flex-col items-center justify-center gap-3 cursor-pointer group">
+                         <span className="text-3xl group-hover:scale-110 transition-transform">📸</span>
+                         <span className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">{uploading ? '...' : L.uploadBtn}</span>
+                         <input type="file" className="hidden" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'gallery')} />
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Helpers */}
+                  <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800">
+                      <p className="text-[10px] text-zinc-500 font-medium">✓ Bright interior photos work best</p>
+                    </div>
+                    <div className="bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800">
+                      <p className="text-[10px] text-zinc-500 font-medium">✓ Show food + atmosphere</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Contact */}
+                <div>
+                  <SectionTitle num="04">{L.sectionContact}</SectionTitle>
                   <div className="space-y-10">
                     <Field label={L.contactName} required><input type="text" required value={contactName} onChange={e => setContactName(e.target.value)} className={inputCls} placeholder="Full name" /></Field>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -481,20 +592,19 @@ export default function PartnersPage() {
                   </div>
                 </div>
 
-                {/* Section 3: Presence */}
+                {/* Section 5: Presence */}
                 <div>
-                  <SectionTitle num="03">{L.sectionOnline}</SectionTitle>
+                  <SectionTitle num="05">{L.sectionOnline}</SectionTitle>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <Field label={L.websiteUrl}><input type="url" value={websiteUrl} onChange={e => setWebsiteUrl(e.target.value)} className={inputCls} placeholder="https://..." /></Field>
-                    <Field label={L.imageUrl}><input type="url" value={imageUrl} onChange={e => setImageUrl(e.target.value)} className={inputCls} placeholder="https://..." /></Field>
                     <Field label={L.orderingUrl}><input type="url" value={orderingUrl} onChange={e => setOrderingUrl(e.target.value)} className={inputCls} placeholder="https://..." /></Field>
                     <Field label={L.menuUrl}><input type="url" value={menuUrl} onChange={e => setMenuUrl(e.target.value)} className={inputCls} placeholder="https://..." /></Field>
                   </div>
                 </div>
 
-                {/* Section 4: Service */}
+                {/* Section 6: Service */}
                 <div>
-                  <SectionTitle num="04">{L.sectionDelivery}</SectionTitle>
+                  <SectionTitle num="06">{L.sectionDelivery}</SectionTitle>
                   <div className="flex gap-10 mb-10 bg-zinc-950/40 p-8 rounded-[32px] border border-zinc-800">
                     <label className="flex items-center gap-4 text-xs font-black text-white cursor-pointer group">
                       <input type="checkbox" className={checkboxCls} checked={offersDelivery} onChange={e => setOffersDelivery(e.target.checked)} />

@@ -12,6 +12,39 @@ import { pool } from '../db/pool'
 
 const router = Router()
 
+// ── POST /api/partners/upload ───────────────────────────────────────────────
+// MOCK UPLOAD: In production, this should use multer + Supabase Storage or Cloudinary.
+// For the MVP and fast deployment, we accept base64 or file and return a simulated URL
+// or store it temporarily if the environment allows.
+router.post('/upload', async (req: Request, res: Response) => {
+  try {
+    const { file, type } = req.body // type: 'logo' | 'gallery'
+    
+    // Simulate processing delay
+    await new Promise(r => setTimeout(r, 1000))
+
+    // In a real implementation:
+    // 1. Parse file using multer
+    // 2. Upload to Supabase bucket 'restaurant-photos'
+    // 3. Return the public URL
+    
+    // For now, if it's base64, we just return it back (not ideal for DB but works for MVP preview)
+    // or return a high-quality placeholder if the file is too large.
+    if (file && file.length > 500000) {
+       // Return a nice placeholder if base64 is too huge (>500KB)
+       return res.json({ 
+         url: type === 'logo' 
+           ? 'https://via.placeholder.com/200?text=Logo' 
+           : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80' 
+       })
+    }
+
+    return res.json({ url: file })
+  } catch (err) {
+    return res.status(500).json({ error: 'Upload failed' })
+  }
+})
+
 function requireAdmin(req: Request, res: Response): boolean {
   const ADMIN_TOKEN = process.env.ADMIN_TOKEN
   const auth = req.headers['x-admin-token']
@@ -46,6 +79,8 @@ router.post('/apply', async (req: Request, res: Response) => {
     notes,
     opening_hours,
     image_url,
+    logo_url,
+    gallery_urls,
   } = req.body
 
   if (!restaurant_name?.trim()) return res.status(400).json({ error: 'restaurant_name is required' })
@@ -61,10 +96,10 @@ router.post('/apply', async (req: Request, res: Response) => {
         website_url, ordering_url, menu_url,
         offers_delivery, offers_pickup,
         delivery_areas, min_order_eur, delivery_fee_eur, est_delivery_min,
-        notes, opening_hours, image_url
+        notes, opening_hours, image_url, logo_url, gallery_urls
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
-        $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
+        $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
       ) RETURNING id, status, created_at`,
       [
         application_type, existing_restaurant_id ?? null,
@@ -79,6 +114,8 @@ router.post('/apply', async (req: Request, res: Response) => {
         notes ?? null,
         opening_hours ?? null,
         image_url ?? null,
+        logo_url ?? null,
+        gallery_urls ?? null,
       ]
     )
 
@@ -137,6 +174,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     website_url, ordering_url, menu_url,
     offers_delivery, offers_pickup,
     delivery_areas, notes, opening_hours, image_url,
+    logo_url, gallery_urls,
   } = req.body
 
   const VALID_STATUSES = ['pending', 'active', 'rejected']
@@ -166,6 +204,8 @@ router.patch('/:id', async (req: Request, res: Response) => {
   if (notes !== undefined)           { updates.push(`notes = $${idx++}`);           values.push(notes) }
   if (opening_hours !== undefined)   { updates.push(`opening_hours = $${idx++}`);   values.push(opening_hours) }
   if (image_url !== undefined)       { updates.push(`image_url = $${idx++}`);       values.push(image_url) }
+  if (logo_url !== undefined)        { updates.push(`logo_url = $${idx++}`);        values.push(logo_url) }
+  if (gallery_urls !== undefined)    { updates.push(`gallery_urls = $${idx++}`);    values.push(gallery_urls) }
 
   if (updates.length === 0) return res.status(400).json({ error: 'Nothing to update' })
 

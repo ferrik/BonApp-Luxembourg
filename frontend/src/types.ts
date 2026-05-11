@@ -44,6 +44,8 @@ export interface Restaurant {
   group_size_max: number
   hours: Record<string, string> | null
   menu_url: string | null
+  logo_url: string | null
+  gallery_urls: string[] | null
   verified: boolean
   // injected by backend to signal fallback was used
   _is_fallback?: boolean
@@ -91,6 +93,8 @@ export interface PartnerApplicationPayload {
   ordering_url?: string
   menu_url?: string
   image_url?: string
+  logo_url?: string
+  gallery_urls?: string[]
 
   offers_delivery: boolean
   offers_pickup: boolean

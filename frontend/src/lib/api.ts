@@ -62,6 +62,15 @@ export async function submitPartnerApplication(
   return handleResponse<PartnerApplicationResponse>(res)
 }
 
+export async function uploadImage(file: string, type: 'logo' | 'gallery'): Promise<{ url: string }> {
+  const res = await fetch(`${BASE_URL}/partners/upload`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ file, type }),
+  })
+  return handleResponse<{ url: string }>(res)
+}
+
 // ── trackEvent: always stores locally, silently sends to backend ─────────────
 export function trackEvent(name: string, data: Record<string, unknown> = {}): void {
   // Local fallback — never lose data
