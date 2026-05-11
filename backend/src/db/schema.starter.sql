@@ -1,4 +1,4 @@
--- BonApp Luxembourg MVP - PostgreSQL starter schema
+﻿-- BonApp Luxembourg MVP - PostgreSQL starter schema
 -- Use this as a reference. Antigravity should compare this with DATA_SCHEMA.md before applying changes.
 
 CREATE TABLE IF NOT EXISTS restaurants (
@@ -32,6 +32,23 @@ CREATE TABLE IF NOT EXISTS restaurants (
   billing_enabled BOOLEAN DEFAULT FALSE,
   pricing_plan TEXT DEFAULT 'free' CHECK (pricing_plan IN ('free', 'per_click', 'subscription', 'hybrid')),
   notes TEXT,
+  opening_hours TEXT,
+
+  image_url TEXT,
+  pexels_url TEXT,
+  image_source TEXT DEFAULT 'placeholder',
+  image_status TEXT DEFAULT 'missing',
+  vibe TEXT,
+  seating TEXT,
+  parking BOOLEAN DEFAULT FALSE,
+  scenario TEXT[],
+  lat NUMERIC(10,7),
+  lng NUMERIC(10,7),
+  price_range INT DEFAULT 2,
+  group_size_max INT DEFAULT 10,
+  hours JSONB,
+  verified BOOLEAN DEFAULT FALSE,
+  open_now BOOLEAN DEFAULT FALSE,
 
   created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
@@ -142,4 +159,24 @@ CREATE INDEX IF NOT EXISTS idx_partner_applications_status
 
 CREATE INDEX IF NOT EXISTS idx_partner_applications_created
   ON partner_applications (created_at DESC);
+
+
+CREATE TABLE IF NOT EXISTS events (
+  id SERIAL PRIMARY KEY,
+  event_name TEXT NOT NULL,
+  data JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_events_name ON events(event_name);
+CREATE INDEX IF NOT EXISTS idx_events_created ON events(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS saved_places (
+  id SERIAL PRIMARY KEY,
+  session_id TEXT NOT NULL,
+  restaurant_id INT REFERENCES restaurants(id) ON DELETE CASCADE,
+  saved_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_saved_places_session ON saved_places(session_id);
 

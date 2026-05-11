@@ -21,14 +21,14 @@
 [x] Ensure updated_at trigger exists — in schema.starter.sql
 [x] Ensure indexes exist — all indexes in schema.starter.sql
 [x] Ensure API filters work — GET /api/restaurants?cuisine=Italian&limit=3
-[ ] Apply schema to DB — run: npm run db:migrate in backend/
+[x] Apply schema to DB — run: npm run db:migrate in backend/
 
 ## Phase 3 - Tracking
 [x] Implement POST /api/tracking/click — backend/src/routes/tracking.ts
 [x] Validate restaurant_id exists — DB check before insert
 [x] Validate event_type — only 4 allowed values
 [x] Store events in restaurant_clicks — INSERT query
-[ ] Smoke test CTA tracking — needs running backend + DB
+[x] Smoke test CTA tracking — needs running backend + DB
 
 ## Phase 4 - UX flow
 [x] Home screen — src/pages/HomePage.tsx
@@ -39,9 +39,9 @@
 [x] Footer legal links — Footer.tsx
 
 ## Phase 5 - Data import
-[ ] Prepare DATA_SEED.json — need real restaurant data
-[ ] Build JSON importer
-[ ] Import real restaurants
+[x] Prepare DATA_SEED.json — need real restaurant data
+[x] Build JSON importer
+[x] Import real restaurants
 [ ] Generate import summary
 [ ] Review failed / duplicate rows
 

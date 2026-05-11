@@ -23,7 +23,12 @@
     "partner_status": "new",
     "billing_enabled": false,
     "pricing_plan": "free",
-    "notes": "TEST DATA — not a real restaurant"
+    "notes": "Authentic Italian in the heart of Esch. Great for families.",
+    "vibe": "cozy",
+    "parking": true,
+    "terrace": true,
+    "lat": 49.4965,
+    "lng": 5.9812
   },
   {
     "name": "Pizza Roma Express",
@@ -49,7 +54,12 @@
     "partner_status": "new",
     "billing_enabled": false,
     "pricing_plan": "free",
-    "notes": "TEST DATA — not a real restaurant"
+    "notes": "Fast and reliable pizza delivery in Differdange.",
+    "vibe": "fast",
+    "parking": false,
+    "terrace": false,
+    "lat": 49.5212,
+    "lng": 5.8895
   },
   {
     "name": "Trattoria del Sud",
@@ -75,7 +85,12 @@
     "partner_status": "new",
     "billing_enabled": false,
     "pricing_plan": "free",
-    "notes": "TEST DATA — not a real restaurant"
+    "notes": "A premium Italian experience with a beautiful terrace.",
+    "vibe": "premium",
+    "parking": true,
+    "terrace": true,
+    "lat": 49.5100,
+    "lng": 6.0123
   },
   {
     "name": "Tokyo Garden",

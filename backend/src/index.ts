@@ -131,6 +131,9 @@ DO $$ BEGIN ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS price_range  INT DE
 DO $$ BEGIN ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS group_size_max INT DEFAULT 10; EXCEPTION WHEN OTHERS THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS hours        JSONB;       EXCEPTION WHEN OTHERS THEN NULL; END $$;
 DO $$ BEGIN ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS verified     BOOLEAN DEFAULT false; EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS open_now     BOOLEAN DEFAULT false; EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS terrace      BOOLEAN DEFAULT false; EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS menu_url     TEXT; EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- ── vibe auto-assignment (runs every boot, safe to repeat) ───────────────────
 UPDATE restaurants SET vibe = CASE
@@ -180,8 +183,8 @@ async function runMigrations(): Promise<void> {
     `)
     const row = qc.rows[0]
     console.log('[data-quality]', row)
-    if (Number(row.total) < 10) {
-      console.warn('[data-quality] WARNING: Fewer than 10 restaurants in DB. Minimum 20 recommended for launch.')
+    if (Number(row.total) < 20) {
+      console.warn('[data-quality] WARNING: < 20 restaurants. Launch readiness: LOW.')
     }
   } catch (e) {
     console.error('[data-quality] check failed:', e)
@@ -203,3 +206,5 @@ async function start() {
 }
 
 start()
+
+
