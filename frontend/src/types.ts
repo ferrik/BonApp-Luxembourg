@@ -36,12 +36,14 @@ export interface Restaurant {
   vibe: string | null
   seating: string | null
   parking: boolean
+  terrace: boolean
   scenario: string[] | null
   lat: number | null
   lng: number | null
   price_range: number       // 1=€  2=€€  3=€€€
   group_size_max: number
   hours: Record<string, string> | null
+  menu_url: string | null
   verified: boolean
   // injected by backend to signal fallback was used
   _is_fallback?: boolean

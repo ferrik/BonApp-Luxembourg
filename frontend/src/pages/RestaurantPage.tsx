@@ -47,6 +47,12 @@ function isSaved(restaurantId: number): boolean {
   } catch { return false }
 }
 
+function mockDistance(restaurantId: number): string {
+  const dist = (restaurantId % 15) / 10 + 0.5
+  const mins = Math.round(dist * 8)
+  return `${mins} min · ${dist.toFixed(1)} km`
+}
+
 export default function RestaurantPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -66,7 +72,6 @@ export default function RestaurantPage() {
       .then((data) => {
         setRestaurant(data)
         setSaved(isSaved(rid))
-        // Track page view (fire & forget)
         trackEvent('restaurant_view', { restaurant_id: rid })
       })
       .catch(() => setError(t('error.notFound', lang)))
@@ -82,8 +87,6 @@ export default function RestaurantPage() {
           <div className="p-6 space-y-4">
             <div className="h-6 w-2/3 bg-zinc-800 rounded" />
             <div className="h-4 w-1/3 bg-zinc-800 rounded" />
-            <div className="h-12 bg-zinc-800 rounded-xl" />
-            <div className="h-12 bg-zinc-800 rounded-xl" />
           </div>
         </div>
       </main>
@@ -104,29 +107,10 @@ export default function RestaurantPage() {
   }
 
   const r = restaurant
-
+  const distance = mockDistance(r.id)
   const hasPhone   = Boolean(r.phone)
   const hasCoords  = r.lat != null && r.lng != null
-  const hasWebsite = Boolean(r.website_url)
-
-  // CTA priority per spec
-  let primaryCTA: { label: string; href: string; event: string } | null = null
-  const secondaryCTAs: { label: string; href: string; event: string }[] = []
-
-  if (hasPhone) {
-    primaryCTA = { label: `${t('restaurant.call', lang)} · ${r.phone}`, href: `tel:${r.phone}`, event: 'click_call' }
-  } else if (hasCoords) {
-    primaryCTA = { label: t('restaurant.route', lang), href: googleMapsRoute(r.lat!, r.lng!), event: 'click_route' }
-  } else if (hasWebsite) {
-    primaryCTA = { label: t('restaurant.menu', lang), href: r.website_url!, event: 'click_menu' }
-  }
-
-  if (hasCoords && primaryCTA?.event !== 'click_route') {
-    secondaryCTAs.push({ label: t('restaurant.route', lang), href: googleMapsRoute(r.lat!, r.lng!), event: 'click_route' })
-  }
-  if (hasWebsite && primaryCTA?.event !== 'click_menu') {
-    secondaryCTAs.push({ label: t('restaurant.menu', lang), href: r.website_url!, event: 'click_menu' })
-  }
+  const hasWebsite = Boolean(r.website_url || r.delivery_url || r.menu_url)
 
   function handleCTA(e: React.MouseEvent, eventName: string, href: string) {
     e.preventDefault()
@@ -182,23 +166,29 @@ export default function RestaurantPage() {
                     ✓ {t('card.verified', lang)}
                   </span>
                 )}
-                {r.cuisine_primary && (
-                  <span className="bg-zinc-900/80 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-wider border border-white/10">
-                    {r.cuisine_primary}
-                  </span>
+                {r.vibe && (
+                   <span className="bg-zinc-900/80 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-wider border border-white/10">
+                     ✨ {t(`card.${r.vibe}`, lang)}
+                   </span>
                 )}
                 <span className="bg-zinc-900/80 backdrop-blur-md text-brand-400 text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-wider border border-white/10">
                   {priceLabel(r.price_range ?? 2)}
+                </span>
+                <span className="bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-wider shadow-lg">
+                  {distance}
                 </span>
              </div>
              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-tight tracking-tight mb-4">
                 {r.name}
              </h1>
-             {r.city && (
-               <p className="text-zinc-300 text-lg font-bold flex items-center gap-2">
-                 <span className="text-brand-500">📍</span> {r.city}
-               </p>
-             )}
+             <div className="flex items-center gap-4">
+                <p className="text-zinc-300 text-lg font-bold flex items-center gap-2">
+                   <span className="text-brand-500">📍</span> {r.city || 'Luxembourg'}
+                </p>
+                {r.cuisine_primary && (
+                   <span className="text-zinc-500 text-sm font-bold uppercase tracking-widest">{r.cuisine_primary}</span>
+                )}
+             </div>
           </div>
         </div>
       </div>
@@ -216,6 +206,28 @@ export default function RestaurantPage() {
               </p>
             </div>
           )}
+
+          {/* Features */}
+          <div className="flex flex-wrap gap-4 pt-8 border-t border-zinc-900">
+             {r.terrace && (
+                <div className="flex items-center gap-3 bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl flex-1 min-w-[150px]">
+                   <span className="text-2xl">☀️</span>
+                   <div className="flex flex-col">
+                      <span className="text-xs font-black text-white uppercase tracking-tight">{t('card.terrace', lang)}</span>
+                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Outdoor seating</span>
+                   </div>
+                </div>
+             )}
+             {r.parking && (
+                <div className="flex items-center gap-3 bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl flex-1 min-w-[150px]">
+                   <span className="text-2xl">🚗</span>
+                   <div className="flex flex-col">
+                      <span className="text-xs font-black text-white uppercase tracking-tight">{t('card.parking', lang)}</span>
+                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Easy access</span>
+                   </div>
+                </div>
+             )}
+          </div>
 
           <div className="grid sm:grid-cols-2 gap-12 pt-8 border-t border-zinc-900">
              {r.address && (
@@ -236,33 +248,52 @@ export default function RestaurantPage() {
         {/* Right Column: Actions / Stickies */}
         <div className="space-y-6">
            <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 sticky top-32">
-              <h3 className="text-white font-black text-xl mb-8">Contact & Visit</h3>
+              <h3 className="text-white font-black text-xl mb-8">Navigate & Contact</h3>
               
               <div className="space-y-4">
-                {primaryCTA && (
-                  <a
-                    id={`cta-primary-${r.id}`}
-                    href={primaryCTA.href}
-                    onClick={(e) => handleCTA(e, primaryCTA!.event, primaryCTA!.href)}
-                    className="btn-pick-for-me flex items-center justify-center !max-w-none shadow-brand-500/10"
-                  >
-                    {primaryCTA.label}
-                  </a>
-                )}
+                {/* PRIMARY: ROUTE */}
+                <button
+                  onClick={(e) => {
+                    const url = hasCoords 
+                      ? googleMapsRoute(r.lat!, r.lng!) 
+                      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name} ${r.city || 'Luxembourg'}`)}`
+                    handleCTA(e, 'click_route', url)
+                  }}
+                  className="w-full btn-pick-for-me flex items-center justify-center gap-3 !max-w-none shadow-brand-500/20 active:scale-[0.98] group/route"
+                >
+                  <span className="text-2xl group-hover/route:rotate-12 transition-transform">🧭</span>
+                  <span>{t('restaurant.route', lang)}</span>
+                </button>
 
-                {secondaryCTAs.map((cta) => (
-                  <a
-                    key={cta.event}
-                    id={`cta-${cta.event.replace('click_', '')}-${r.id}`}
-                    href={cta.href}
-                    onClick={(e) => handleCTA(e, cta.event, cta.href)}
-                    className="btn-secondary w-full py-4 rounded-2xl text-base font-bold"
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    disabled={!hasPhone}
+                    onClick={(e) => handleCTA(e, 'click_call', `tel:${r.phone}`)}
+                    className={`flex items-center justify-center gap-2 py-4 rounded-2xl border transition-all ${
+                       hasPhone 
+                       ? 'bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700' 
+                       : 'bg-zinc-900/50 border-zinc-900 text-zinc-700 cursor-not-allowed'
+                    }`}
                   >
-                    {cta.label}
-                  </a>
-                ))}
+                    <span className="text-lg">📞</span>
+                    <span className="text-xs font-black uppercase tracking-widest">{t('restaurant.call', lang)}</span>
+                  </button>
 
-                {!primaryCTA && (
+                  <button
+                    disabled={!hasWebsite}
+                    onClick={(e) => handleCTA(e, 'click_menu', r.menu_url || r.website_url || r.delivery_url || '')}
+                    className={`flex items-center justify-center gap-2 py-4 rounded-2xl border transition-all ${
+                       hasWebsite 
+                       ? 'bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700' 
+                       : 'bg-zinc-900/50 border-zinc-900 text-zinc-700 cursor-not-allowed'
+                    }`}
+                  >
+                    <span className="text-lg">📋</span>
+                    <span className="text-xs font-black uppercase tracking-widest">{t('restaurant.menu', lang)}</span>
+                  </button>
+                </div>
+
+                {!hasPhone && !hasCoords && !hasWebsite && (
                   <p className="text-center text-zinc-500 text-sm py-4">
                     {t('restaurant.notAvailable', lang)}
                   </p>

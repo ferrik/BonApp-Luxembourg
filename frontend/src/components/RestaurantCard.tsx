@@ -76,6 +76,13 @@ function isSaved(restaurantId: number): boolean {
   }
 }
 
+function mockDistance(restaurantId: number, city?: string): string {
+  // Deterministic mock distance based on ID
+  const dist = (restaurantId % 15) / 10 + 0.5
+  const mins = Math.round(dist * 8)
+  return `${mins} min · ${dist.toFixed(1)} km`
+}
+
 export default function RestaurantCard({ restaurant: r, rank }: Props) {
   const { lang } = useLang()
   const [imgError, setImgError] = useState(false)
@@ -83,8 +90,9 @@ export default function RestaurantCard({ restaurant: r, rank }: Props) {
   const imageUrl = imgError ? '/images/placeholder-restaurant.jpg' : resolveImage(r)
   const hasPhone = Boolean(r.phone)
   const hasCoords = r.lat != null && r.lng != null
-  const hasWebsite = Boolean(r.website_url || r.delivery_url)
+  const hasWebsite = Boolean(r.website_url || r.delivery_url || r.menu_url)
   const openNow = isOpenNow(r)
+  const distance = mockDistance(r.id, r.city)
 
   function handleAction(e: React.MouseEvent, eventName: string, href: string) {
     e.preventDefault()
@@ -96,92 +104,122 @@ export default function RestaurantCard({ restaurant: r, rank }: Props) {
   return (
     <article 
       onClick={() => window.location.href = `/restaurant/${r.id}`}
-      className="group bg-zinc-900/40 border border-zinc-800 rounded-[32px] overflow-hidden hover:border-zinc-700 transition-all cursor-pointer flex flex-col h-full"
+      className="group bg-zinc-900/40 border border-zinc-800 rounded-[32px] overflow-hidden hover:border-brand-500/30 transition-all cursor-pointer flex flex-col h-full shadow-lg hover:shadow-brand-500/5"
     >
       {/* Image Container */}
-      <div className="relative h-[240px] md:h-[260px] overflow-hidden shrink-0">
+      <div className="relative h-[220px] md:h-[240px] overflow-hidden shrink-0">
         <img 
           src={imageUrl} 
           alt={r.name} 
           onError={() => setImgError(true)} 
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
           loading="lazy" 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />
         
         <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-          {openNow && (
-            <span className="bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-xl shadow-black/20">
+          {openNow ? (
+            <span className="bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-xl">
               ● {t('card.openNow', lang)}
             </span>
-          )}
-          {r.verified && (
-            <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-xl shadow-black/20">
-              ✓ {t('card.verified', lang)}
-            </span>
+          ) : (
+             <span className="bg-zinc-800/80 backdrop-blur-md text-zinc-400 text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full">
+               ○ Closed
+             </span>
           )}
         </div>
 
-        {rank != null && (
-          <div className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-brand-500 text-white text-base font-black flex items-center justify-center shadow-2xl shadow-brand-500/40 transform group-hover:scale-110 transition-transform">
-            {rank}
-          </div>
-        )}
+        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+           <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                 <span className="text-white font-black text-lg tracking-tight drop-shadow-md">{r.name}</span>
+                 {r.verified && <span className="text-brand-400 text-xs">✓</span>}
+              </div>
+              <div className="flex items-center gap-2 text-zinc-300 text-[10px] font-bold uppercase tracking-widest opacity-90">
+                 <span>{r.cuisine_primary || 'Local'}</span>
+                 <span>·</span>
+                 <span>{r.city || 'Luxembourg'}</span>
+              </div>
+           </div>
+           <div className="text-right">
+              <div className="text-brand-400 text-[10px] font-black uppercase tracking-widest mb-1">{distance}</div>
+              <div className="text-zinc-400 text-xs font-bold">{priceLabel(r.price_range ?? 2)}</div>
+           </div>
+        </div>
       </div>
 
       {/* Content */}
       <div className="p-6 flex flex-col flex-1">
-        <div className="mb-4">
-          <div className="flex justify-between items-start gap-2 mb-1">
-            <h3 className="text-xl font-black text-white tracking-tight leading-tight group-hover:text-brand-400 transition-colors">
-              {r.name}
-            </h3>
-            <span className="text-sm font-black text-brand-400 shrink-0">
-              {priceLabel(r.price_range ?? 2)}
-            </span>
-          </div>
-          <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-            {r.cuisine_primary || 'Local'} · {r.city || 'Luxembourg'}
-          </p>
+        {/* Vibe / Features */}
+        <div className="flex flex-wrap gap-2 mb-4">
+           {r.vibe && (
+              <span className="bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
+                ✨ {t(`card.${r.vibe}`, lang)}
+              </span>
+           )}
+           {r.terrace && (
+              <span className="bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
+                ☀️ {t('card.terrace', lang)}
+              </span>
+           )}
+           {r.parking && (
+              <span className="bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
+                🚗 {t('card.parking', lang)}
+              </span>
+           )}
         </div>
 
         {r.notes && (
-          <p className="text-sm text-zinc-400 line-clamp-2 mb-6 leading-relaxed italic opacity-80 group-hover:opacity-100 transition-opacity">
+          <p className="text-sm text-zinc-400 line-clamp-2 mb-6 leading-relaxed italic opacity-80">
             "{r.notes}"
           </p>
         )}
 
-        {/* Action Grid */}
-        <div className="mt-auto grid grid-cols-3 gap-2">
-          {hasCoords ? (
-            <button 
-              onClick={(e) => handleAction(e, 'click_route', googleMapsRoute(r.lat!, r.lng!))}
-              className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-zinc-800/40 hover:bg-zinc-800 transition-colors border border-zinc-700/30 group/btn"
-            >
-              <span className="text-base group-hover/btn:scale-110 transition-transform">📍</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 group-hover/btn:text-zinc-300">{t('card.route', lang)}</span>
-            </button>
-          ) : <div className="bg-zinc-900/20 rounded-2xl border border-zinc-800/10" />}
+        {/* Action Grid - NEW PRIORITY */}
+        <div className="mt-auto flex flex-col gap-3">
+          {/* PRIMARY: ROUTE */}
+          <button 
+            onClick={(e) => {
+               const url = hasCoords 
+                 ? googleMapsRoute(r.lat!, r.lng!) 
+                 : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name} ${r.city || 'Luxembourg'}`)}`
+               handleAction(e, 'click_route', url)
+            }}
+            className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-brand-500 hover:bg-brand-400 text-white transition-all shadow-xl shadow-brand-500/20 active:scale-[0.98] group/route"
+          >
+            <span className="text-xl group-hover/route:rotate-12 transition-transform">🧭</span>
+            <span className="text-xs font-black uppercase tracking-[0.2em]">{t('card.route', lang)}</span>
+          </button>
 
-          {hasPhone ? (
+          <div className="grid grid-cols-2 gap-3">
+            {/* SECONDARY: CALL */}
             <button 
               onClick={(e) => handleAction(e, 'click_call', `tel:${r.phone}`)}
-              className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-zinc-800/40 hover:bg-zinc-800 transition-colors border border-zinc-700/30 group/btn"
+              disabled={!hasPhone}
+              className={`flex items-center justify-center gap-2 py-3.5 rounded-2xl border transition-all ${
+                hasPhone 
+                ? 'bg-zinc-800/50 border-zinc-700 text-white hover:bg-zinc-800' 
+                : 'bg-zinc-900/20 border-zinc-900 text-zinc-700 cursor-not-allowed'
+              }`}
             >
-              <span className="text-base group-hover/btn:scale-110 transition-transform">📞</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 group-hover/btn:text-zinc-300">{t('card.call', lang)}</span>
+              <span className="text-base">📞</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">{t('card.call', lang)}</span>
             </button>
-          ) : <div className="bg-zinc-900/20 rounded-2xl border border-zinc-800/10" />}
 
-          {hasWebsite ? (
+            {/* TERTIARY: MENU/WEBSITE */}
             <button 
-              onClick={(e) => handleAction(e, 'click_menu', r.website_url || r.delivery_url || '')}
-              className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-brand-500/10 hover:bg-brand-500/20 transition-colors border border-brand-500/20 group/btn"
+              onClick={(e) => handleAction(e, 'click_menu', r.menu_url || r.website_url || r.delivery_url || '')}
+              disabled={!hasWebsite}
+              className={`flex items-center justify-center gap-2 py-3.5 rounded-2xl border transition-all ${
+                hasWebsite 
+                ? 'bg-zinc-800/50 border-zinc-700 text-white hover:bg-zinc-800' 
+                : 'bg-zinc-900/20 border-zinc-900 text-zinc-700 cursor-not-allowed'
+              }`}
             >
-              <span className="text-base group-hover/btn:scale-110 transition-transform">🍴</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-brand-400 group-hover/btn:text-brand-300">{t('card.menu', lang)}</span>
+              <span className="text-base">📋</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">{t('card.menu', lang)}</span>
             </button>
-          ) : <div className="bg-zinc-900/20 rounded-2xl border border-zinc-800/10" />}
+          </div>
         </div>
       </div>
     </article>
