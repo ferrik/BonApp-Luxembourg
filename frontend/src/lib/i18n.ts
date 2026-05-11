@@ -23,6 +23,16 @@ const strings: Record<string, Record<Lang, string>> = {
     fr: 'Pas de scroll infini. Juste 3 bonnes options.',
     lb: 'Kee laange Scrollen. Just 3 gutt Plazen.',
   },
+  'home.whereAreYou': {
+    en: '📍 Where are you?',
+    fr: '📍 Où êtes-vous ?',
+    lb: '📍 Wou sidd Dir?',
+  },
+  'home.whatMood': {
+    en: 'What are you in the mood for?',
+    fr: 'De quoi avez-vous envie ?',
+    lb: 'Wat hutt Dir gär?',
+  },
   'home.pickForMe': {
     en: '🍽 Pick my place tonight',
     fr: '🍽 Trouve-moi un endroit',

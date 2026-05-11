@@ -241,37 +241,86 @@ export default function HomePage() {
       {showSheet && <PickForMeSheet onClose={() => setShowSheet(false)} onConfirm={handleSheetConfirm} lang={lang} />}
 
       {/* ── HERO SECTION ── */}
-      <section className="relative overflow-hidden bg-zinc-950 border-b border-zinc-900">
+      <section className="relative overflow-hidden bg-zinc-950 border-b border-zinc-900 lg:min-h-[90svh] flex items-center">
+        {/* Background Image for Mobile */}
         <div className="absolute inset-0 z-0 lg:hidden">
            <img 
              src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80" 
-             className="w-full h-full object-cover opacity-20"
+             className="w-full h-full object-cover opacity-10"
              alt="Vibe"
            />
            <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-transparent to-zinc-950" />
         </div>
 
-        <div className="relative z-10 container grid lg:grid-cols-[1fr_1.2fr] gap-16 lg:gap-24 items-center min-h-[85svh] lg:min-h-[800px] py-20">
+        <div className="relative z-10 container grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-24 items-center py-12 lg:py-20">
           
-          {/* Left Side: Copy & Dominant CTA */}
+          {/* Left Side: Decision Engine */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-            <h1 className="text-[44px] sm:text-[56px] lg:text-[88px] font-black text-white leading-[0.95] mb-10 tracking-tighter max-w-[700px]">
+            <h1 className="text-[40px] sm:text-[56px] lg:text-[84px] font-black text-white leading-[0.95] mb-6 tracking-tighter max-w-[700px]">
               {t('home.tagline', lang)}
             </h1>
-            <p className="text-xl sm:text-2xl text-zinc-400 mb-14 max-w-lg font-medium leading-relaxed">
+            <p className="text-lg sm:text-xl text-zinc-500 mb-10 max-w-lg font-bold leading-relaxed">
               {t('home.subtitle', lang)}
             </p>
 
-            <button 
-              id="hero-cta-main" 
-              onClick={handlePickForMe} 
-              className="btn-pick-for-me mb-16 group"
-            >
-              {t('home.pickForMe', lang)}
-            </button>
+            {/* Decision Block */}
+            <div className="w-full max-w-md bg-zinc-900/40 backdrop-blur-xl border border-zinc-800 p-8 rounded-[40px] shadow-2xl shadow-black/40 space-y-8">
+              
+              {/* 1. Location */}
+              <div className="space-y-4">
+                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 block">
+                    {t('home.whereAreYou', lang)}
+                 </label>
+                 <div className="relative group">
+                    <select 
+                      value={city}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      className="w-full h-[64px] bg-zinc-800 border border-zinc-700 rounded-2xl px-6 text-white font-black text-lg appearance-none cursor-pointer hover:border-brand-500 transition-colors focus:ring-2 focus:ring-brand-500/20"
+                    >
+                      <option value="">{t('home.cityLabel', lang)}</option>
+                      {STATIC_CITIES.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                    <span className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none group-hover:text-brand-500 transition-colors">▼</span>
+                 </div>
+              </div>
+
+              {/* 2. Scenario */}
+              <div className="space-y-4">
+                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 block">
+                    {t('home.whatMood', lang)}
+                 </label>
+                 <div className="grid grid-cols-2 gap-3">
+                   {SCENARIOS.map(({ key, icon }) => (
+                     <button
+                       key={key}
+                       onClick={() => handleScenario(key)}
+                       className={`flex items-center gap-3 p-3 rounded-2xl border transition-all active:scale-95 ${
+                         scenario === key 
+                         ? 'border-brand-500 bg-brand-500/10 text-white' 
+                         : 'border-zinc-800 bg-zinc-900/50 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
+                       }`}
+                     >
+                       <span className="text-xl" aria-hidden="true">{icon}</span>
+                       <span className="text-[10px] font-black uppercase tracking-widest">{t(`scenario.${key}`, lang).replace(/[^a-zA-Z]/g, '').trim()}</span>
+                     </button>
+                   ))}
+                 </div>
+              </div>
+
+              {/* 3. Primary CTA */}
+              <button 
+                id="hero-cta-main" 
+                onClick={handlePickForMe} 
+                className="btn-pick-for-me !w-full !max-w-none !h-[72px] group"
+              >
+                {t('home.pickForMe', lang).replace('🍽 ', '🎲 ')}
+              </button>
+            </div>
 
             {/* Social Proof Strip */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-10 gap-y-4 mb-10 opacity-30">
+            <div className="hidden lg:flex flex-wrap items-center gap-x-10 mt-12 opacity-30">
               <span className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 flex items-center gap-3">
                 <span className="text-xl">🏪</span> {t('home.socialLocal', lang)}
               </span>
@@ -285,29 +334,29 @@ export default function HomePage() {
           </div>
 
           {/* Right Side: Emotional Collage */}
-          <div className="hidden lg:grid grid-cols-2 gap-6 h-[650px] transform rotate-3 scale-105 origin-center">
+          <div className="hidden lg:grid grid-cols-2 gap-6 h-[700px] transform rotate-2 scale-105 origin-center">
             <div className="space-y-6">
               <img 
                 src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80" 
-                className="w-full h-[360px] object-cover rounded-[48px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out cursor-pointer"
-                alt="Restaurant Table Atmosphere"
+                className="w-full h-[380px] object-cover rounded-[56px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out"
+                alt="Table Atmosphere"
               />
               <img 
                 src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80" 
-                className="w-full h-[260px] object-cover rounded-[48px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out cursor-pointer"
-                alt="Delicious Pizza Oven"
+                className="w-full h-[280px] object-cover rounded-[56px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out"
+                alt="Pizza Oven"
               />
             </div>
-            <div className="space-y-6 pt-16">
+            <div className="space-y-6 pt-24">
               <img 
                 src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80" 
-                className="w-full h-[260px] object-cover rounded-[48px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out cursor-pointer"
-                alt="Evening Cocktails Bar"
+                className="w-full h-[280px] object-cover rounded-[56px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out"
+                alt="Cocktail Bar"
               />
               <img 
                 src="https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80" 
-                className="w-full h-[360px] object-cover rounded-[48px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out cursor-pointer"
-                alt="Gourmet Dessert Atmosphere"
+                className="w-full h-[380px] object-cover rounded-[56px] shadow-2xl border-8 border-zinc-900 hover:scale-105 transition-transform duration-700 ease-out"
+                alt="Gourmet Dessert"
               />
             </div>
           </div>
@@ -315,12 +364,12 @@ export default function HomePage() {
       </section>
 
       {/* ── TONIGHT IN LUXEMBOURG ── */}
-      <section id="tonight" className="container py-20 sm:py-32">
+      <section id="tonight" className="container py-20 lg:py-24">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 mb-12">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="w-8 h-[2px] bg-brand-500" />
-              <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em]">Haut den Owend</span>
+              <span className="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em]">Trending Now</span>
             </div>
             <h2 className="text-[40px] sm:text-[56px] font-black text-white mb-4 tracking-tighter leading-none">
               {t('home.tonightTitle', lang)}
@@ -355,70 +404,15 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* ── SCENARIOS & CITIES ── */}
-      <section className="bg-zinc-900/40 border-y border-zinc-900 py-24">
-        <div className="container grid lg:grid-cols-2 gap-20">
-          <div>
-            {/* Scenarios */}
-            <div className="w-full max-w-xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-6">Explore by Vibe · Local picks</p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {SCENARIOS.map(({ key, icon }) => (
-                <button
-                  key={key}
-                  id={`scenario-${key}`}
-                  onClick={() => handleScenario(key)}
-                  className={`flex flex-col items-center justify-center gap-3 p-5 rounded-[24px] border transition-all active:scale-95 group ${
-                    scenario === key ? 'border-brand-500 bg-brand-500/10' : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700'
-                  }`}
-                >
-                  <span className="text-3xl group-hover:scale-125 transition-transform" aria-hidden="true">{icon}</span>
-                  <div className="text-left">
-                    <span className="block text-sm font-black text-white uppercase tracking-wider">
-                      {t(`scenario.${key}`, lang).replace('🍽 ', '').replace('☕ ', '').replace('🍷 ', '').replace('⚡ ', '')}
-                    </span>
-                    <span className="text-[10px] text-zinc-500 font-bold">Explore top 3</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-8">Popular in Luxembourg</p>
-            <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-[32px] shadow-2xl">
-              <div className="flex items-center gap-4 mb-6">
-                <span className="text-2xl">📍</span>
-                <h3 className="text-xl font-black text-white tracking-tight">Browse by city</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {STATIC_CITIES.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => handleCityChange(c)}
-                    className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                      city === c ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/25' : 'bg-zinc-800 text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── SAVED PLACES (CONDITIONAL) ── */}
       {savedIds.length > 0 && (
-        <section className="py-12">
+        <section className="pb-24">
           <div className="container">
-             <button onClick={() => navigate('/results?saved=1')} className="group inline-flex items-center gap-6 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 p-6 rounded-[32px] transition-all">
+             <button onClick={() => navigate('/results?saved=1')} className="group inline-flex items-center gap-6 bg-zinc-900/40 hover:bg-zinc-800 border border-zinc-800 p-6 rounded-[32px] transition-all w-full sm:w-auto">
                 <span className="w-14 h-14 rounded-2xl bg-brand-500 text-white flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">♥</span>
                 <div className="text-left">
                   <p className="text-xl font-black text-white">{t('home.savedPlaces', lang)}</p>
-                  <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">{savedIds.length} {savedIds.length === 1 ? 'place' : 'places'} ready for you</p>
+                  <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">{savedIds.length} {savedIds.length === 1 ? 'place' : 'places'} ready</p>
                 </div>
              </button>
           </div>
@@ -426,30 +420,32 @@ export default function HomePage() {
       )}
 
       {/* ── HOW IT WORKS ── */}
-      <section className="container py-32">
-        <div className="text-center max-w-2xl mx-auto mb-20">
-          <h2 className="text-[40px] font-black text-white mb-6 tracking-tight">{t('howItWorks.title', lang)}</h2>
-          <div className="w-20 h-1.5 bg-brand-500 mx-auto rounded-full" />
-        </div>
-        <div className="grid md:grid-cols-3 gap-8">
-          {HOW_IT_WORKS.map((step) => (
-            <div key={step.step} className="group p-10 rounded-[40px] bg-zinc-900/30 border border-zinc-800 hover:border-brand-500/30 transition-all text-center">
-              <div className="w-20 h-20 rounded-3xl bg-zinc-800 flex items-center justify-center text-4xl mb-8 mx-auto group-hover:scale-110 group-hover:bg-brand-500/10 group-hover:text-brand-500 transition-all">
-                {step.icon}
+      <section className="bg-zinc-950 py-32 border-t border-zinc-900">
+        <div className="container">
+          <div className="text-center max-w-2xl mx-auto mb-20">
+            <h2 className="text-[40px] font-black text-white mb-6 tracking-tight">{t('howItWorks.title', lang)}</h2>
+            <div className="w-20 h-1.5 bg-brand-500 mx-auto rounded-full" />
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {HOW_IT_WORKS.map((step) => (
+              <div key={step.step} className="group p-10 rounded-[40px] bg-zinc-900/30 border border-zinc-800 hover:border-brand-500/30 transition-all text-center">
+                <div className="w-20 h-20 rounded-3xl bg-zinc-800 flex items-center justify-center text-4xl mb-8 mx-auto group-hover:scale-110 group-hover:bg-brand-500/10 group-hover:text-brand-500 transition-all">
+                  {step.icon}
+                </div>
+                <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight">{t(step.titleKey, lang)}</h3>
+                <p className="text-zinc-500 font-medium leading-relaxed">{t(step.hintKey, lang)}</p>
               </div>
-              <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight">{t(step.titleKey, lang)}</h3>
-              <p className="text-zinc-500 font-medium leading-relaxed">{t(step.hintKey, lang)}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ── FOR RESTAURANTS ── */}
-      <section className="container py-20">
-        <div className="relative overflow-hidden bg-brand-500 rounded-[48px] p-12 sm:p-20 flex flex-col items-center text-center">
+      <section className="container py-24">
+        <div className="relative overflow-hidden bg-brand-500 rounded-[48px] p-12 sm:p-24 flex flex-col items-center text-center shadow-2xl shadow-brand-500/20">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
           <div className="relative z-10 max-w-2xl">
-            <h2 className="text-4xl sm:text-6xl font-black text-zinc-950 mb-6 tracking-tighter leading-none">
+            <h2 className="text-4xl sm:text-7xl font-black text-zinc-950 mb-6 tracking-tighter leading-none">
               {t('forRestaurants.title', lang)}
             </h2>
             <p className="text-xl text-zinc-900 font-bold mb-10 leading-relaxed">
@@ -457,7 +453,7 @@ export default function HomePage() {
             </p>
             <button 
               onClick={() => navigate('/partners')}
-              className="bg-zinc-950 text-white h-[72px] px-12 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-black/20"
+              className="bg-zinc-950 text-white h-[80px] px-14 rounded-2xl font-black text-2xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-black/40"
             >
               {t('forRestaurants.cta', lang)}
             </button>
