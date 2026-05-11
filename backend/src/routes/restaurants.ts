@@ -1,4 +1,4 @@
-﻿import { Router, Request, Response } from 'express'
+import { Router, Request, Response } from 'express'
 import { pool } from '../db/pool'
 
 const router = Router()
@@ -101,17 +101,17 @@ router.get('/', async (req: Request, res: Response) => {
         typeof r.city === 'string' && r.city.toLowerCase().includes(city.toLowerCase()) &&
         Array.isArray(r.scenario) && (r.scenario as string[]).includes(scenario)
       )
-      if (l1.length >= 3) picked = pickTop(l1)
+      if (l1.length > 0) picked = pickTop(l1)
     }
 
     if (picked.length < 3 && city) {
       const l2 = rows.filter(r => typeof r.city === 'string' && r.city.toLowerCase().includes(city.toLowerCase()))
-      if (l2.length >= 3) { picked = pickTop(l2); isFallback = true }
+      if (l2.length > 0) { picked = pickTop(l2); isFallback = true }
     }
 
     if (picked.length < 3 && scenario) {
       const l3 = rows.filter(r => Array.isArray(r.scenario) && (r.scenario as string[]).includes(scenario))
-      if (l3.length >= 3) { picked = pickTop(l3); isFallback = true }
+      if (l3.length > 0) { picked = pickTop(l3); isFallback = true }
     }
 
     if (picked.length < 3) {
